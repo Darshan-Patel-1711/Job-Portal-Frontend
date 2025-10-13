@@ -15,7 +15,7 @@ export default function JobBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const apiUrl = process.env.REACT_APP_API_URL;
- 
+
   // Package types with unique styling
   const packageTypes = {
     silver: {
@@ -74,7 +74,7 @@ export default function JobBoard() {
       count: 8,
     },
   ];
-  
+
   // Fetch jobs from API
   useEffect(() => {
     fetchJobs();
@@ -105,15 +105,24 @@ export default function JobBoard() {
         featured: job.featured,
         highlights: job.highlights || ["Standard Listing"],
         description: job.description,
-        requirements:
-         job.requirements ? [
-         `Working Hours: ${job.requirements[0]?.workingHours || "Not specified" }`,
-         `Shift: ${job.requirements[0]?.shift || "Not specified"}`,
-         `Flexible Hours: ${job.requirements[0]?.flexibleWorkingHours ? "Yes" : "No" }`,
-         `Notice Period: ${ job.requirements[0]?.noticePeriod || "Not specified"}`,
-         `Bond Time: ${job.requirements[0]?.bondTime || "Not specified"}`,] 
-         : ["No specific requirements listed"],
-        benefits: job.benefits? job.benefits.split(", ").map((benefit) => benefit.trim()): ["Standard benefits package"],
+        requirements: job.requirements
+          ? [
+              `Working Hours: ${
+                job.requirements[0]?.workingHours || "Not specified"
+              }`,
+              `Shift: ${job.requirements[0]?.shift || "Not specified"}`,
+              `Flexible Hours: ${
+                job.requirements[0]?.flexibleWorkingHours ? "Yes" : "No"
+              }`,
+              `Notice Period: ${
+                job.requirements[0]?.noticePeriod || "Not specified"
+              }`,
+              `Bond Time: ${job.requirements[0]?.bondTime || "Not specified"}`,
+            ]
+          : ["No specific requirements listed"],
+        benefits: job.benefits
+          ? job.benefits.split(", ").map((benefit) => benefit.trim())
+          : ["Standard benefits package"],
         applicationDeadline: job.applicationDeadline || job.posted,
         experienceLevel: job.experienceLevel,
         education: job.education,
@@ -204,22 +213,25 @@ export default function JobBoard() {
   }
 
   function timeAgo(postedDate) {
-  const posted = new Date(postedDate);
-  const now = new Date();
-  const diffMs = now - posted; // milliseconds difference
+    const posted = new Date(postedDate);
+    const now = new Date();
+    const diffMs = now - posted; // milliseconds difference
 
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffYears = Math.floor(diffDays / 365);
-  const diffWeeks = Math.floor((diffDays % 365) / 7);
-  const remainingDays = diffDays % 7;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffYears = Math.floor(diffDays / 365);
+    const diffWeeks = Math.floor((diffDays % 365) / 7);
+    const remainingDays = diffDays % 7;
 
-  let result = "";
-  if (diffYears > 0) result += `${diffYears} year${diffYears > 1 ? "s" : ""} `;
-  if (diffWeeks > 0) result += `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} `;
-  if (remainingDays > 0 || result === "") result += `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
+    let result = "";
+    if (diffYears > 0)
+      result += `${diffYears} year${diffYears > 1 ? "s" : ""} `;
+    if (diffWeeks > 0)
+      result += `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} `;
+    if (remainingDays > 0 || result === "")
+      result += `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
 
-  return result.trim() + " ago";
-}
+    return result.trim() + " ago";
+  }
 
   return (
     <WebLayout>
@@ -240,7 +252,11 @@ export default function JobBoard() {
                 <div className="row text-center">
                   <div className="col-md-4 mb-3">
                     <div
-                      className={`package-card card h-100 ${activePackage === "silver"? "border-secondary border-3 shadow": "border-secondary"}`}
+                      className={`package-card card h-100 ${
+                        activePackage === "silver"
+                          ? "border-secondary border-3 shadow"
+                          : "border-secondary"
+                      }`}
                       onClick={() => togglePackageFilter("silver")}
                       style={{ cursor: "pointer", transition: "all 0.3s" }}
                     >
@@ -255,7 +271,11 @@ export default function JobBoard() {
                   </div>
                   <div className="col-md-4 mb-3">
                     <div
-                      className={`package-card card h-100 ${ activePackage === "gold" ? "border-warning border-3 shadow" : "border-warning" }`}
+                      className={`package-card card h-100 ${
+                        activePackage === "gold"
+                          ? "border-warning border-3 shadow"
+                          : "border-warning"
+                      }`}
                       onClick={() => togglePackageFilter("gold")}
                       style={{ cursor: "pointer", transition: "all 0.3s" }}
                     >
@@ -270,7 +290,11 @@ export default function JobBoard() {
                   </div>
                   <div className="col-md-4 mb-3">
                     <div
-                      className={`package-card card h-100 ${ activePackage === "platinum" ? "border-primary border-3 shadow" : "border-primary" }`}
+                      className={`package-card card h-100 ${
+                        activePackage === "platinum"
+                          ? "border-primary border-3 shadow"
+                          : "border-primary"
+                      }`}
                       onClick={() => togglePackageFilter("platinum")}
                       style={{ cursor: "pointer", transition: "all 0.3s" }}
                     >
@@ -288,13 +312,24 @@ export default function JobBoard() {
 
               {/* Category Filters */}
               <div className="category-filters mt-4 mb-4">
-                <button className={`btn ${ activeCategory === "All"? "btn-primary" : "btn-outline-primary" } me-2 mb-2`}
+                <button
+                  className={`btn ${
+                    activeCategory === "All"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  } me-2 mb-2`}
                   onClick={() => setActiveCategory("All")}
                 >
                   All Jobs
                 </button>
                 {jobCategories.map((category) => (
-                  <button key={category.title} className={`btn ${activeCategory === category.title ? "btn-primary" : "btn-outline-primary" } me-2 mb-2`}
+                  <button
+                    key={category.title}
+                    className={`btn ${
+                      activeCategory === category.title
+                        ? "btn-primary"
+                        : "btn-outline-primary"
+                    } me-2 mb-2`}
                     onClick={() => {
                       if (activeCategory === category.title) {
                         setActiveCategory("All");
@@ -316,11 +351,22 @@ export default function JobBoard() {
               filteredJobs.map((job, index) => {
                 const pkg = getPackageStyle(job.package);
                 return (
-                  <div  className="col-lg-6 mb-4" key={job.id} data-aos="fade-up" data-aos-delay={index * 100} >
-                    <div className={`job-card card h-100 shadow-sm border-3 ${pkg.borderClass} ${job.featured ? "featured-job" : ""}`}>
+                  <div
+                    className="col-lg-6 mb-4"
+                    key={job.id}
+                    data-aos="fade-up"
+                    data-aos-delay={index * 100}
+                  >
+                    <div
+                      className={`job-card card h-100 shadow-sm border-3 ${
+                        pkg.borderClass
+                      } ${job.featured ? "featured-job" : ""}`}
+                    >
                       <div className="card-body position-relative">
                         {/* Package Badge */}
-                        <div className={`package-badge ${pkg.badgeClass} text-white px-3 py-1 rounded-pill position-absolute top-0 start-50 translate-middle`}>
+                        <div
+                          className={`package-badge ${pkg.badgeClass} text-white px-3 py-1 rounded-pill position-absolute top-0 start-50 translate-middle`}
+                        >
                           <i className={`${pkg.icon} me-1`}></i>
                           {pkg.name} Package
                         </div>
@@ -341,7 +387,13 @@ export default function JobBoard() {
                               )}
                             </h5>
                             <p className="card-text text-muted mb-1">
-                             <img src={job.companyLogo} alt="" className="testimonial-img" style={{width:"20px",height:"auto"}} />  {job.company}
+                              <img
+                                src={job.companyLogo}
+                                alt=""
+                                className="testimonial-img"
+                                style={{ width: "20px", height: "auto" }}
+                              />{" "}
+                              {job.company}
                             </p>
                             <p className="card-text text-muted small">
                               <i className="bi bi-geo-alt me-1"></i>
@@ -350,9 +402,11 @@ export default function JobBoard() {
                           </div>
                           <div className="text-end">
                             <div className="salary-badge bg-success text-white px-2 py-1 rounded mb-2">
-                             ₹ {job.salary}
+                              ₹ {job.salary}
                             </div>
-                            <small className="text-muted">{timeAgo(job.posted)}</small>
+                            <small className="text-muted">
+                              {timeAgo(job.posted)}
+                            </small>
                           </div>
                         </div>
 

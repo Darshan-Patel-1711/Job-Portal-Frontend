@@ -76,6 +76,26 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
       resume: e.target.files[0]
     }));
   };
+  function timeAgo(postedDate) {
+    const posted = new Date(postedDate);
+    const now = new Date();
+    const diffMs = now - posted; // milliseconds difference
+
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffYears = Math.floor(diffDays / 365);
+    const diffWeeks = Math.floor((diffDays % 365) / 7);
+    const remainingDays = diffDays % 7;
+
+    let result = "";
+    if (diffYears > 0)
+      result += `${diffYears} year${diffYears > 1 ? "s" : ""} `;
+    if (diffWeeks > 0)
+      result += `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} `;
+    if (remainingDays > 0 || result === "")
+      result += `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
+
+    return result.trim() + " ago";
+  }
 
   return (
     <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
@@ -83,8 +103,11 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
         <div className="modal-content">
           <div className="modal-header">
             <div>
-              <h4 className="modal-title">{job.title}</h4>
-              <p className="mb-0 text-muted">{job.company} • {job.location}</p>
+              <div className="d-flex">
+             <img src={job.companyLogo} alt="logo"className="testimonial-img me-1"style={{ width: "30px", height: "auto" }}/>  <h4 className="mb-0 text-muted">{job.company} </h4>
+              </div>
+              
+             <p className="modal-title">{job.title} • {job.location}</p>
             </div>
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
@@ -107,7 +130,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
                 <div className="d-flex flex-wrap gap-3 text-muted">
                   <div>
                     <i className="bi bi-calendar me-1"></i>
-                    Posted: {job.posted}
+                    Posted: {timeAgo(job.posted)} 
                   </div>
                   <div>
                     <i className="bi bi-clock me-1"></i>
@@ -121,8 +144,8 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
               </div>
               <div className="col-md-4 text-end">
                 <div className="salary-display">
-                  <h3 className="text-success mb-1">{job.salary}</h3>
-                  <small className="text-muted">per year</small>
+                  <h3 className="text-success mb-1">₹ {(job.salary * 12).toLocaleString("en-IN")}</h3>
+                  <small className="text-muted">Per year</small>
                 </div>
               </div>
             </div>
@@ -148,27 +171,27 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
                       <tbody>
                         <tr>
                           <td>Base Salary</td>
-                          <td className="text-end">₹</td>
+                          <td className="text-end">₹{(job.salary).toLocaleString("en-IN")}</td>
                         </tr>
                         <tr>
-                          <td>Tax (18%)</td>
-                          <td className="text-end text-danger">-₹</td>
+                          <td>Tax (0%)</td>
+                          <td className="text-end text-danger">-₹00</td>
                         </tr>
                         <tr>
                           <td>Benefits & Bonuses</td>
-                          <td className="text-end text-success">+₹</td>
+                          <td className="text-end text-success">+₹00</td>
                         </tr>
                         <tr className="table-success fw-bold">
                           <td>CTC (Cost to Company)</td>
-                          <td className="text-end">₹</td>
+                          <td className="text-end">₹ {(job.salary).toLocaleString("en-IN")}</td>
                         </tr>
                         <tr className="table-primary fw-bold">
                           <td>Cash in Hand (Annual)</td>
-                          <td className="text-end">₹</td>
+                          <td className="text-end">₹{(job.salary).toLocaleString("en-IN")}</td>
                         </tr>
                         <tr className="table-info">
                           <td>Monthly Take Home</td>
-                          <td className="text-end">₹</td>
+                          <td className="text-end">₹ {(job.salary).toLocaleString("en-IN")}</td>
                         </tr>
                       </tbody>
                     </table>
