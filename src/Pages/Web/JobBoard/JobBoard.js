@@ -133,6 +133,7 @@ export default function JobBoard() {
         companyEmail: job.companyEmail,
         companyAddress: job.companyEddress,
         companyLogo: job.companyLogo,
+        companyId:job.companyid
       }));
 
       setJobListings(transformedJobs);

@@ -12,6 +12,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
     resume: null
   });
    const apiUrl = process.env.REACT_APP_API_URL;
+   console.log(job,"job")
 
 
   if (!job || !show) return null;
@@ -39,7 +40,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
       formData.append('name', applicationData.name);
       formData.append('email', applicationData.email);
       formData.append('phone', applicationData.phone);
-      formData.append('jobId', job._id); // Assuming job has _id field
+      formData.append('jobId', job.id); // Assuming job has _id field
       formData.append('resume', applicationData.resume);
       formData.append('companyId', job.companyId); // Assuming job has companyId field
       const response = await axios.post(`${apiUrl}candidate/apply`, formData, {
