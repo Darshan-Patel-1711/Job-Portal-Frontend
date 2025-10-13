@@ -19,19 +19,10 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
   };
 
   // Calculate salary breakdown
-  const calculateSalaryBreakdown = (salary) => {
-    const baseSalary = parseInt(salary.replace(/[₹,]/g, ''));
-    return {
-      baseSalary: baseSalary,
-      tax: baseSalary * 0.18, // 18% tax
-      ctc: baseSalary * 1.15, // 15% additional benefits
-      cashInHand: baseSalary * 0.75, // After tax
-      benefits: baseSalary * 0.15 // Additional benefits
-    };
-  };
+  
 
   const pkg = getPackageStyle(job.package);
-  const salaryBreakdown = calculateSalaryBreakdown(job.salary);
+ 
 
   // Handle apply button click
   const handleApply = async () => {
@@ -157,27 +148,27 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
                       <tbody>
                         <tr>
                           <td>Base Salary</td>
-                          <td className="text-end">₹{salaryBreakdown.baseSalary.toLocaleString()}</td>
+                          <td className="text-end">₹</td>
                         </tr>
                         <tr>
                           <td>Tax (18%)</td>
-                          <td className="text-end text-danger">-₹{salaryBreakdown.tax.toLocaleString()}</td>
+                          <td className="text-end text-danger">-₹</td>
                         </tr>
                         <tr>
                           <td>Benefits & Bonuses</td>
-                          <td className="text-end text-success">+₹{salaryBreakdown.benefits.toLocaleString()}</td>
+                          <td className="text-end text-success">+₹</td>
                         </tr>
                         <tr className="table-success fw-bold">
                           <td>CTC (Cost to Company)</td>
-                          <td className="text-end">₹{salaryBreakdown.ctc.toLocaleString()}</td>
+                          <td className="text-end">₹</td>
                         </tr>
                         <tr className="table-primary fw-bold">
                           <td>Cash in Hand (Annual)</td>
-                          <td className="text-end">₹{salaryBreakdown.cashInHand.toLocaleString()}</td>
+                          <td className="text-end">₹</td>
                         </tr>
                         <tr className="table-info">
                           <td>Monthly Take Home</td>
-                          <td className="text-end">₹{(salaryBreakdown.cashInHand / 12).toLocaleString()}</td>
+                          <td className="text-end">₹</td>
                         </tr>
                       </tbody>
                     </table>
