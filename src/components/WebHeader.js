@@ -47,7 +47,7 @@ export default function WebHeader() {
             </li>
             <li>
               <NavLink
-                to="/profile"
+                to="/companys"
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
                 Companys

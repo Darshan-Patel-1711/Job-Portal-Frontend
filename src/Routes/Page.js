@@ -69,6 +69,7 @@ import Team from "../Pages/Web/Team/Team";
 import Contact from "../Pages/Web/Contact/Contact";
 import FeedBack from "../Pages/Web/FeedBack/FeedBack";
 import JobBoard from "../Pages/Web/JobBoard/JobBoard";
+import Companys from "../Pages/Web/Company/List"
 
 export default function App() {
   return (
@@ -141,6 +142,7 @@ export default function App() {
             <Route   path="contact"             element={<Contact />} />
             <Route   path="feedback"            element={<FeedBack />} />
             <Route   path="jobboard"            element={<JobBoard />} />
+            <Route   path="companys"            element={<Companys/>}  />
           </Route>
         </Routes>
      
