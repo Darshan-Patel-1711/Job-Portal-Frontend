@@ -184,14 +184,14 @@ export default function AddCompanys() {
 
     {
       name: "Actions",
-      width: "100px",
+      width: "60px",
       center: "true",
       cell: (row) =>
         row.isSkeleton ? (
           <Skeleton width={60} height={30} />
         ) : (
           <div className="d-flex">
-            <button
+            {/* <button
               type="button"
               className="btn btn-primary btn-xs d-flex align-items-center justify-content-center rounded-circle mr-1"
               style={{ width: "32px", height: "32px" }}
@@ -202,7 +202,7 @@ export default function AddCompanys() {
               }
             >
               <FilePenLine size={16} />
-            </button>
+            </button> */}
             <button
               type="button"
               className="btn btn-danger btn-xs d-flex align-items-center justify-content-center rounded-circle"
@@ -267,13 +267,13 @@ export default function AddCompanys() {
                       />
                     </div>
                     <div className="bd-highlight">
-                      <button
+                      {/* <button
                         onClick={() => navigate("/admin/jobadd")}
                         type="button"
                         className="btn btn-block btn-primary"
                       >
                         <i className="fas fa-plus"></i> Add
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
