@@ -9,8 +9,7 @@ export default function About() {
         <div className="container section-title" data-aos="fade-up">
           <h2>About Us</h2>
           <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
+            Welcome to TalentOS — a powerful and easy-to-use
           </p>
         </div>
         {/* End Section Title */}
@@ -23,16 +22,9 @@ export default function About() {
             >
               <h3>Voluptatem dignissimos provident quasi</h3>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis
-                aute irure dolor in reprehenderit
+                Our mission is to simplify the hiring process for companies of all sizes by providing a modern, all-in-one platform to manage job postings, track applicants, schedule interviews, and build strong teams.
               </p>
-              <a
-                href="#"
-                className="about-btn align-self-center align-self-xl-start"
-              >
-                <span>About us</span> <i className="bi bi-chevron-right" />
-              </a>
+              
             </div>
             <div className="col-xl-7" data-aos="fade-up" data-aos-delay={200}>
               <div className="row gy-4">
@@ -40,7 +32,7 @@ export default function About() {
                   <i className="bi bi-briefcase" />
                   <h4>
                     <a href="" className="stretched-link">
-                      Corporis voluptates sit
+                      Job posting
                     </a>
                   </h4>
                   <p>
@@ -53,7 +45,7 @@ export default function About() {
                   <i className="bi bi-gem" />
                   <h4>
                     <a href="" className="stretched-link">
-                      Ullamco laboris nisi
+                      Interview scheduling
                     </a>
                   </h4>
                   <p>
@@ -66,7 +58,7 @@ export default function About() {
                   <i className="bi bi-broadcast" />
                   <h4>
                     <a href="" className="stretched-link">
-                      Labore consequatur
+                    Application tracking
                     </a>
                   </h4>
                   <p>
@@ -79,7 +71,7 @@ export default function About() {
                   <i className="bi bi-easel" />
                   <h4>
                     <a href="" className="stretched-link">
-                      Beatae veritatis
+                     Customizable Hiring
                     </a>
                   </h4>
                   <p>

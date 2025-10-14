@@ -4,11 +4,19 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import CountUp from "react-countup";
+
 export default function Home() {
   const Env = process.env;
   const [companies, setCompanies] = useState([]);
-
-  useEffect(() => {
+  const [stats, setStats] = useState({
+    totalCompanies: 0,
+    totalJobs: 0,
+    locatons: 0,
+    totalCandidates: 0
+  });
+  
+  const fetchCompanies = async () => {
     const config = {
       method: "get",
       maxBodyLength: Infinity,
@@ -16,19 +24,35 @@ export default function Home() {
       headers: {},
     };
 
-    axios
-      .request(config)
-      .then((response) => {
-        if (response.data.success) {
-          setCompanies(response.data.data);
-        }
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
-        
-      });
-      // eslint-disable-next-line
+    try {
+      const response = await axios.request(config);
+      setCompanies(response?.data?.data || []);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred while fetching companies";
+      toast.error(errorMessage);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get(`${Env.REACT_APP_API_URL}reports/getStats`);
+      setStats(response.data);
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      console.log("finally")
+    }
+  };
+
+useEffect(() => {
+    fetchCompanies();
+    fetchStats();
+    // eslint-disable-next-line
   }, []);
+
   return (
     <WebLayout>
       {/* Hero Section */}
@@ -48,11 +72,11 @@ export default function Home() {
                 soon as today
               </p>
               <div className="d-flex">
-                <Link to="/admin/login" className=" btn-get-started">
+                <Link to="/jobboard" className=" btn-get-started">
                   Get Started
                 </Link>
                 <Link
-                  to="/admin/login"
+                  to="/jobboard"
                   className="glightbox btn-watch-video d-flex align-items-center"
                 ></Link>
               </div>
@@ -70,23 +94,34 @@ export default function Home() {
       {/* clients section */}
       <section id="clients" className="clients section light-background">
         <div className="container" data-aos="fade-up">
-          <div className="row gy-4">
-            {companies.map((company, index) => (
-              <div key={index} className="col-xl-2 col-md-3 col-6 client-logo">
-                <a
-                  href={company.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
+          {companies && companies?.length > 0 ? (
+            <div className="row gy-4">
+              {companies?.map((company, index) => (
+                <div
+                  key={index}
+                  className="col-xl-2 col-md-3 col-6 client-logo"
                 >
-                  <img
-                    src={company.logo}
-                    className="img-fluid"
-                    alt={company.name}
-                  />
-                </a>
-              </div>
-            ))}
-          </div>
+                  <a
+                    href={company?.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src={company?.logo}
+                      className="img-fluid"
+                      alt={company?.name}
+                    />
+                  </a>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-5">
+              <p className="text-muted mb-0">
+                No companies available right now.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -190,125 +225,45 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* /Team Section */}
-      <section id="pricing" className="pricing section">
-        {/* Section Title */}
-        <div className="container section-title" data-aos="fade-up">
-          <h2>Pricing</h2>
-          <p>
-            Necessitatibus eius consequatur ex aliquid fuga eum quidem sint
-            consectetur velit
-          </p>
-        </div>
-        {/* End Section Title */}
-        <div className="container">
+
+      <section id="stats" className="stats section light-background mb-5">
+        <img src="Web/img/stats-bg.jpg" alt="" data-aos="fade-in" />
+        <div
+          className="container position-relative"
+          data-aos="fade-up"
+          data-aos-delay="100"
+        >
           <div className="row gy-4">
-            <div className="col-lg-4" data-aos="zoom-in" data-aos-delay={100}>
-              <div className="pricing-item">
-                <h3>Demo Plan</h3>
-                <h4>
-                  <sup>$</sup>10 <span>/ Demo</span>
-                </h4>
-                <ul>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Quam adipiscing vitae proin</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nec feugiat nisl pretium</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nulla at volutpat diam uteera</span>
-                  </li>
-                  <li className="na">
-                    <i className="bi bi-x" />{" "}
-                    <span>Pharetra massa massa ultricies</span>
-                  </li>
-                  <li className="na">
-                    <i className="bi bi-x" />{" "}
-                    <span>Massa ultricies mi quis hendrerit</span>
-                  </li>
-                </ul>
-                <a href="#" className="buy-btn">
-                  Buy Now
-                </a>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+               <CountUp className="purecounter" end={stats.totalCompanies} />
+                <p>companies</p>
               </div>
             </div>
-            {/* End Pricing Item */}
-            <div className="col-lg-4" data-aos="zoom-in" data-aos-delay={200}>
-              <div className="pricing-item featured">
-                <h3>Business Plan</h3>
-                <h4>
-                  <sup>$</sup>199<span> / month</span>
-                </h4>
-                <ul>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Quam adipiscing vitae proin</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nec feugiat nisl pretium</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nulla at volutpat diam uteera</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Pharetra massa massa ultricies</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Massa ultricies mi quis hendrerit</span>
-                  </li>
-                </ul>
-                <a href="#" className="buy-btn">
-                  Buy Now
-                </a>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <CountUp className="purecounter" end={stats.totalJobs} />
+                <p>Job</p>
               </div>
             </div>
-            {/* End Pricing Item */}
-            <div className="col-lg-4" data-aos="zoom-in" data-aos-delay={300}>
-              <div className="pricing-item">
-                <h3>Premium Plan</h3>
-                <h4>
-                  <sup>$</sup>399<span> / month</span>
-                </h4>
-                <ul>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Quam adipiscing vitae proin</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nec feugiat nisl pretium</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Nulla at volutpat diam uteera</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Pharetra massa massa ultricies</span>
-                  </li>
-                  <li>
-                    <i className="bi bi-check" />{" "}
-                    <span>Massa ultricies mi quis hendrerit</span>
-                  </li>
-                </ul>
-                <a href="#" className="buy-btn">
-                  Buy Now
-                </a>
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <CountUp className="purecounter" end={stats.locatons} />
+                <p>locatons</p>
               </div>
             </div>
-            {/* End Pricing Item */}
+
+            <div className="col-lg-3 col-md-6">
+              <div className="stats-item text-center w-100 h-100">
+                <CountUp className="purecounter" end={stats.totalCandidates} />
+                <p>Candidate</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
-       <ToastContainer style={{width: 'auto'}} />
+
+      <ToastContainer style={{ width: "auto" }} />
     </WebLayout>
   );
 }
