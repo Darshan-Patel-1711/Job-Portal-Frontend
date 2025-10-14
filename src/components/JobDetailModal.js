@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import TimeAgo from "../utils/TimeAgo";
 
 const JobModal = ({ job, show, onClose, packageTypes }) => {
   const [isApplying, setIsApplying] = useState(false);
@@ -71,26 +72,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
       resume: e.target.files[0]
     }));
   };
-  function timeAgo(postedDate) {
-    const posted = new Date(postedDate);
-    const now = new Date();
-    const diffMs = now - posted; // milliseconds difference
-
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffYears = Math.floor(diffDays / 365);
-    const diffWeeks = Math.floor((diffDays % 365) / 7);
-    const remainingDays = diffDays % 7;
-
-    let result = "";
-    if (diffYears > 0)
-      result += `${diffYears} year${diffYears > 1 ? "s" : ""} `;
-    if (diffWeeks > 0)
-      result += `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} `;
-    if (remainingDays > 0 || result === "")
-      result += `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
-
-    return result.trim() + " ago";
-  }
+  
 
   return (
     <div className="modal fade show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
@@ -125,7 +107,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
                 <div className="d-flex flex-wrap gap-3 text-muted">
                   <div>
                     <i className="bi bi-calendar me-1"></i>
-                    Posted: {timeAgo(job.posted)} 
+                    Posted:<TimeAgo postedDate={job.posted} />
                   </div>
                   <div>
                     <i className="bi bi-clock me-1"></i>

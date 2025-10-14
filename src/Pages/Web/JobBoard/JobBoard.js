@@ -5,6 +5,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import axios from "axios";
+import TimeAgo from "../../../utils/TimeAgo";
 
 export default function JobBoard() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -213,26 +214,7 @@ export default function JobBoard() {
     );
   }
 
-  function timeAgo(postedDate) {
-    const posted = new Date(postedDate);
-    const now = new Date();
-    const diffMs = now - posted; // milliseconds difference
-
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffYears = Math.floor(diffDays / 365);
-    const diffWeeks = Math.floor((diffDays % 365) / 7);
-    const remainingDays = diffDays % 7;
-
-    let result = "";
-    if (diffYears > 0)
-      result += `${diffYears} year${diffYears > 1 ? "s" : ""} `;
-    if (diffWeeks > 0)
-      result += `${diffWeeks} week${diffWeeks > 1 ? "s" : ""} `;
-    if (remainingDays > 0 || result === "")
-      result += `${remainingDays} day${remainingDays > 1 ? "s" : ""}`;
-
-    return result.trim() + " ago";
-  }
+  
 
   return (
     <WebLayout>
@@ -405,8 +387,7 @@ export default function JobBoard() {
                             <div className="salary-badge bg-success text-white px-2 py-1 rounded mb-2">
                               ₹ {job.salary}
                             </div>
-                            <small className="text-muted">
-                              {timeAgo(job.posted)}
+                            <small className="text-muted"> <TimeAgo postedDate={job.posted} />
                             </small>
                           </div>
                         </div>
