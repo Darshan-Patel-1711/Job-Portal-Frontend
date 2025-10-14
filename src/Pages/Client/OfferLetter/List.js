@@ -76,19 +76,21 @@ export default function OfferLetterList() {
           <div className="no-jobs text-center">No job posts found</div>
         ) : (
           // 🔹 Actual Data Section
-          jobPosts.map((job) => (
-            <div
-              key={job._id}
-              className="folder d-flex align-items-center p-3"
-              onClick={() => handleFolderClick(job)}
-              style={{cursor: "pointer",}}
-            >
-              <span className={`folder-icon d-flex align-items-center mr-2 fw-semibold`}>
-                {packageConfig[job.package]?.icon}
-              </span>
-              <p className="folder-text fw-bold mb-0">{job.title}</p>
-            </div>
-          ))
+          <div className="d-flex flex-wrap">
+            {jobPosts.map((job) => (
+              <div
+                key={job._id}
+                className="folder"
+                onClick={() => handleFolderClick(job)}
+                style={{cursor: "pointer"}}
+              >
+                <span className="folder-icon d-flex align-items-center justify-content-center">
+                  {packageConfig[job.package]?.icon}
+                </span>
+                <p className="folder-text fw-bold mb-0">{job.title}</p>
+              </div>
+            ))}
+          </div>
         )}
       </section>
     </UserLayout>

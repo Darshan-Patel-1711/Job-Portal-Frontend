@@ -711,15 +711,19 @@
   );
   border-radius: 0 6px 6px 6px;
   transition: 0.1s ease-out;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   /* box-shadow: 4px 4px 7px rgba(0, 0, 0, 0.59); */
 }
+
 @media screen and (max-width: 768px) {
   .folder {
     width: 110px;
     height: 90px;
     margin: 15px;
-    float: left;
-    position: relative;
     background: rgb(110, 166, 239);
     background: linear-gradient(
       183deg,
@@ -731,9 +735,11 @@
   }
 }
 /*-------------folder box----x------- */
+
 .folder:hover {
   transform: scale(1.2);
 }
+
 /*-------------file opener----------- */
 .folder:before {
   content: "";
@@ -763,25 +769,32 @@
 
 /*------------- text  ----------- */
 .folder-text {
+  margin: 0;
+  font-weight: 700;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13px;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 5px;
+  word-break: break-word;
   position: absolute;
+  bottom: 8px;
   left: 5px;
-  top: 60px;
-  margin: 0%;
-  font-weight: 700;
-  font-family: "Courier New", Courier, monospace;
-  font-size: 15px;
-  color: rgb(255, 255, 255);
+  right: 5px;
 }
-.folder-icon{
-  position: absolute;
-  left: 42px;
-  top: 30px;
-  margin: 0%;
+
+.folder-icon {
+  margin: 0;
   font-weight: 700;
   font-family: "Courier New", Courier, monospace;
   font-size: 15px;
   color: rgb(255, 255, 255);
-
+  position: absolute;
+  top: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* general responsive container */
