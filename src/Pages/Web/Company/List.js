@@ -1,59 +1,61 @@
 import React, { useState, useEffect } from "react";
 import WebLayout from "../../../components/WebLayout";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 export default function CompanyList() {
   const [companies, setCompanies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-
-  // Sample data - aap yahan API se data fetch karenge
-  const sampleCompanies = [
-    {
-      _id: "68e8b9809e0708edd2030326",
-      name: "Segama Ind",
-      address: "Nikol Ahemdabad",
-      email: "printftechnology22@gmail.com",
-      phone: "997812352",
-      website: "segama.in",
-      logo: null,
-      isActive: true,
-      type: "PVT LTD",
-      employees: 12,
-      activeJobs: 5,
-    },
-    {
-      _id: "68e8b9809e0708edd2030327",
-      name: "Tech Solutions",
-      address: "SG Highway, Ahmedabad",
-      email: "info@techsolutions.com",
-      phone: "9876543210",
-      website: "techsolutions.com",
-      logo: null,
-      isActive: true,
-      type: "LTD",
-      employees: 25,
-      activeJobs: 8,
-    },
-    {
-      _id: "68e8b9809e0708edd2030328",
-      name: "Innovate Corp",
-      address: "Prahlad Nagar, Ahmedabad",
-      email: "contact@innovate.com",
-      phone: "9876543211",
-      website: "innovatecorp.com",
-      logo: null,
-      isActive: false,
-      type: "PVT LTD",
-      employees: 8,
-      activeJobs: 2,
-    },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const Env = process.env;
 
   useEffect(() => {
-    setCompanies(sampleCompanies);
-      // eslint-disable-next-line
+    fetchCompanies();
+    // eslint-disable-next-line
   }, []);
+
+  const fetchCompanies = async () => {
+    try {
+      setLoading(true);
+      let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `${Env.REACT_APP_API_URL}company/getCompanyWithJobsPublic`,
+        headers: { 
+          "Cache-Control": "no-cache",
+        }
+      };
+      const response = await axios.request(config);
+      if (response.data.success) {
+        // Map API response to match component structure
+        const mappedCompanies = response.data.data.map(company => ({
+          _id: company._id,
+          name: company.name,
+          address: company.address,
+          email: company.email,
+          phone: company.phone,
+          website: company.website,
+          logo: company.logo,
+          isActive: company.isActive,
+          type: company.type,
+          activeJobs: company.jobs || 0, // Using jobs count from API
+          candidates: company.candidates || 0,
+          offered: company.offered || 0
+        }));
+        
+        setCompanies(mappedCompanies);
+      } else {
+        throw new Error('Failed to fetch companies');
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      setError('Failed to load companies. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCompanies = companies.filter((company) => {
     const matchesSearch =
@@ -66,14 +68,52 @@ export default function CompanyList() {
     return matchesSearch && matchesStatus;
   });
 
+  if (loading) {
+    return (
+      <WebLayout>
+        <section id="services" className="services section">
+          <div className="container section-title" data-aos="fade-up">
+            <h2>Companies</h2>
+          </div>
+          <div className="container text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-3">Loading companies...</p>
+          </div>
+        </section>
+      </WebLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <WebLayout>
+        <section id="services" className="services section">
+          <div className="container section-title" data-aos="fade-up">
+            <h2>Companies</h2>
+          </div>
+          <div className="container text-center py-5">
+            <i className="bi bi-exclamation-triangle fs-1 text-danger"></i>
+            <h4 className="text-danger mt-3">Error</h4>
+            <p className="text-muted">{error}</p>
+            <button className="btn btn-primary" onClick={fetchCompanies}>
+              Try Again
+            </button>
+          </div>
+        </section>
+      </WebLayout>
+    );
+  }
+
   return (
     <WebLayout>
       <section id="services" className="services section">
         {/* Section Title */}
         <div className="container section-title" data-aos="fade-up">
-          <h2>Companys</h2>
+          <h2>Companies</h2>
           <p>
-           Companies are organizations that provide goods or services to customers. They play a key role in the economy by creating jobs and driving innovation.
+            Companies are organizations that provide goods or services to customers. They play a key role in the economy by creating jobs and driving innovation.
           </p>
         </div>
         {/* End Section Title */}
@@ -112,7 +152,7 @@ export default function CompanyList() {
             <div className="row">
               {filteredCompanies.map((company) => (
                 <div key={company._id} className="col-xl-4 col-md-6 mb-4">
-                  <div className="card shadow-sm border-0 h-100">
+                  <div className="card shadow-sm border-1 h-100">
                     <div className="card-body">
                       <div className="d-flex align-items-start mb-3">
                         <div className="flex-shrink-0">
@@ -120,15 +160,19 @@ export default function CompanyList() {
                             className="bg-light rounded-circle d-flex align-items-center justify-content-center"
                             style={{ width: "60px", height: "60px" }}
                           >
-                            {company.logo ? (
+                            {company.logo && company.logo.startsWith('data:image') ? (
                               <img
                                 src={company.logo}
                                 alt={`${company.name} logo`}
-                                className="rounded-circle img-fluid"
+                                className=" img-fluid"
                                 style={{
                                   width: "50px",
                                   height: "50px",
                                   objectFit: "cover",
+                                }}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'block';
                                 }}
                               />
                             ) : (
@@ -165,15 +209,21 @@ export default function CompanyList() {
                           <i className="bi bi-phone me-1"></i>
                           {company.phone}
                         </p>
+                        {company.website && (
+                          <p className="text-muted small mb-0">
+                            <i className="bi bi-globe me-1"></i>
+                            {company.website}
+                          </p>
+                        )}
                       </div>
 
                       <div className="row text-center mb-3">
                         <div className="col-4">
                           <div className="border-end">
                             <h6 className="text-primary mb-0">
-                              {company.employees}
+                              {company.offered}
                             </h6>
-                            <small className="text-muted">Employees</small>
+                            <small className="text-muted">Offered</small>
                           </div>
                         </div>
                         <div className="col-4">
@@ -185,8 +235,8 @@ export default function CompanyList() {
                           </div>
                         </div>
                         <div className="col-4">
-                          <h6 className="text-info mb-0">24</h6>
-                          <small className="text-muted">Apps</small>
+                          <h6 className="text-info mb-0">{company.candidates}</h6>
+                          <small className="text-muted">Candidates</small>
                         </div>
                       </div>
                     </div>
