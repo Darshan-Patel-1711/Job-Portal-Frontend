@@ -371,19 +371,7 @@ export default function AddCompanys() {
         },
     };
 
-    const lineOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Schedule Status Overview',
-            },
-        },
-    };
+   
 
     if (loading) {
         return (
