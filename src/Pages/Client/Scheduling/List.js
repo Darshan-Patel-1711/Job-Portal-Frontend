@@ -311,7 +311,7 @@ export default function SchedulingList() {
                       columns={columns}
                       data={skeletonData}
                       pagination={false}
-                      className="custom-table"
+                      className="custom-table" 
                       noHeader
                       highlightOnHover
                       striped
