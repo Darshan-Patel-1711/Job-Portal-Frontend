@@ -7,7 +7,7 @@ import axios from "axios";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import DataTable from "react-data-table-component";
-import { Bar, Doughnut, Line } from "react-chartjs-2";
+import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,7 +20,6 @@ import {
   LineElement,
   PointElement,
 } from "chart.js";
-import { UserCheck, UserX } from "lucide-react";
 
 ChartJS.register(
   CategoryScale,
