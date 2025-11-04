@@ -101,7 +101,7 @@ export default function Edit() {
       }
     } catch (error) {
       console.error("Error fetching job data:", error);
-      toast.error(error.response?.data?.message );
+      toast.error(error.response?.data?.message);
     }
   };
 
@@ -318,19 +318,15 @@ export default function Edit() {
       // Create the data object to send, including the job ID
       const dataToSend = {
         ...formData,
-        id: jobId  // Add the job ID here
+        id: jobId, // Add the job ID here
       };
-      
-      const response = await axios.put(
-        `${apiUrl}job/update`,
-        dataToSend,
-        {
-          headers: {
-            Authorization: `${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+
+      const response = await axios.put(`${apiUrl}job/update`, dataToSend, {
+        headers: {
+          Authorization: `${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       toast.success(response.data.message);
     } catch (error) {
       toast.error(error.response?.data?.message || "An error occurred");
@@ -350,11 +346,11 @@ export default function Edit() {
   return (
     <Layout ac5="active">
       <ContentHeader
-        title="Update Job"
+        title="View Job"
         breadcrumbs={[
           { label: "Dashboard", to: "/admin/dashboard" },
           { label: "Manage Job", to: "/admin/joblist" },
-          { label: "Update Job" },
+          { label: "View Job" },
         ]}
       />
       <section className="content">
@@ -375,6 +371,7 @@ export default function Edit() {
                         required
                         value={formData.title}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -392,6 +389,7 @@ export default function Edit() {
                         placeholder="Select Field"
                         isSearchable
                         required
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -411,6 +409,7 @@ export default function Edit() {
                           handleSelectChange(selected, "flexibleWorkingHours")
                         }
                         placeholder="Select Flexible Hours Option"
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -426,6 +425,7 @@ export default function Edit() {
                         required
                         value={formData.description}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -439,6 +439,7 @@ export default function Edit() {
                         placeholder="e.g., 1 to 3 years"
                         value={formData.experience}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -452,6 +453,7 @@ export default function Edit() {
                         placeholder="Enter Salary"
                         value={formData.salary}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -467,6 +469,7 @@ export default function Edit() {
                         }
                         placeholder="Select Job Type"
                         isSearchable
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -482,6 +485,7 @@ export default function Edit() {
                         }
                         placeholder="Select Country"
                         isSearchable
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -497,7 +501,7 @@ export default function Edit() {
                         }
                         placeholder="Select State"
                         isSearchable
-                        isDisabled={!formData.country}
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -513,7 +517,7 @@ export default function Edit() {
                         }
                         placeholder="Select City"
                         isSearchable
-                        isDisabled={!formData.state}
+                        isDisabled
                       />
                     </div>
                   </div>
@@ -527,6 +531,7 @@ export default function Edit() {
                         id="workingHours"
                         value={formData.workingHours}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -541,6 +546,7 @@ export default function Edit() {
                         placeholder="e.g., Day Shift, Night Shift"
                         value={formData.shift}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -554,6 +560,7 @@ export default function Edit() {
                         placeholder="e.g., 15 days, 1 month"
                         value={formData.noticePeriod}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -567,6 +574,7 @@ export default function Edit() {
                         placeholder="e.g., 1 year"
                         value={formData.bondTime}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -580,6 +588,7 @@ export default function Edit() {
                         placeholder="e.g., Health insurance, Paid time off"
                         value={formData.benefits}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -593,6 +602,7 @@ export default function Edit() {
                         placeholder="Enter bond details if applicable"
                         value={formData.bondDescription}
                         onChange={handleInputChange}
+                        disabled
                       />
                     </div>
                   </div>
@@ -605,15 +615,15 @@ export default function Edit() {
                       onClick={() => window.history.back()}
                       disabled={loading}
                     >
-                      Cancel
+                      <i className="fas fa-arrow-left"></i> Back
                     </button>
-                    <button
+                    {/* <button
                       type="submit"
                       className="btn btn-primary"
                       disabled={loading}
                     >
                       {loading ? "Updating..." : "Update Job"}
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </form>

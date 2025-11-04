@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { FilePenLine, Trash2, X, Clock, MapPin, DollarSign, Calendar, Award, Shield, Star, Crown, Gem, Briefcase, Users, Clock3, Bell, FileText, Gift } from "lucide-react";
+import {  Info, Trash2 } from "lucide-react";
+import { Shield, Star, Crown, Gem } from "lucide-react"; // icons
 import Layout from "../../../components/Layout";
 import ContentHeader from "../../../components/ContentHeader";
 import DataTable from "react-data-table-component";
@@ -20,8 +21,6 @@ export default function AddCompanys() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState({});
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState(null);
 
   useEffect(() => {
     fetchRecords();
@@ -76,54 +75,24 @@ export default function AddCompanys() {
       }
     });
   };
-
-  // Handle row click to open modal
-  const handleRowClick = (row) => {
-    if (!row.isSkeleton) {
-      setSelectedJob(row);
-      setModalOpen(true);
-    }
-  };
-
-  // Close modal
-  const closeModal = () => {
-    setModalOpen(false);
-    setSelectedJob(null);
-  };
-
   // package config
   const packageConfig = {
     Admin: {
-      color: "text-primary",
-      bgColor: "bg-primary",
+      color: "text-primary", // bootstrap blue
       icon: <Shield size={18} />,
     },
     Silver: {
-      color: "text-secondary",
-      bgColor: "bg-secondary",
+      color: "text-secondary", // bootstrap grey
       icon: <Star size={18} />,
     },
     Gold: {
-      color: "text-warning",
-      bgColor: "bg-warning",
+      color: "text-warning", // bootstrap yellow
       icon: <Crown size={18} />,
     },
     Platinum: {
-      color: "text-info",
-      bgColor: "bg-info",
+      color: "text-purple", // custom class (bootstrap में direct purple नहीं होता)
       icon: <Gem size={18} />,
     },
-  };
-
-  // Format benefits array
-  const formatBenefits = (benefits) => {
-    if (Array.isArray(benefits)) {
-      return benefits;
-    }
-    if (typeof benefits === 'string') {
-      return benefits.split(',').map(benefit => benefit.trim());
-    }
-    return [];
   };
 
   const columns = [
@@ -143,13 +112,13 @@ export default function AddCompanys() {
         row.isSkeleton ? (
           <Skeleton circle height={45} width={45} />
         ) : (
-          <div className="d-flex align-items-center">
+          <div className=" d-flex align-items-center">
             <img
               src={row?.company?.logo || Env.REACT_APP_PROJECT_ICON}
               alt="company logo"
               height={25}
               width={25}
-              className="mr-1"
+              className="mr-1 "
             />
             <span className="d-block">
               {row?.company?.name || Env.REACT_APP_PROJECT_NAME}
@@ -157,6 +126,7 @@ export default function AddCompanys() {
           </div>
         ),
     },
+
     {
       name: "Job Title",
       selector: (row) => row.title,
@@ -211,9 +181,10 @@ export default function AddCompanys() {
           `${row.country}, ${row.state}, ${row.city}`
         ),
     },
+
     {
       name: "Actions",
-      width: "60px",
+      width: "100px",
       center: "true",
       cell: (row) =>
         row.isSkeleton ? (
@@ -222,11 +193,20 @@ export default function AddCompanys() {
           <div className="d-flex">
             <button
               type="button"
+              className="btn btn-primary btn-xs d-flex align-items-center justify-content-center rounded-circle mr-1"
+              style={{ width: "32px", height: "32px" }}
+              onClick={() =>
+                navigate(`/admin/jobedit?id=${row._id}`, {
+                  state: { id: row._id },
+                })
+              }
+            >
+              <Info  size={16} />
+            </button>
+            <button
+              type="button"
               className="btn btn-danger btn-xs d-flex align-items-center justify-content-center rounded-circle"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(row._id);
-              }}
+              onClick={() => handleDelete(row._id)}
               style={{ width: "32px", height: "32px" }}
             >
               {deleteLoading[row._id] ? (
@@ -260,14 +240,13 @@ export default function AddCompanys() {
       _id: index,
       isSkeleton: true,
     }));
-
   return (
     <Layout ac5="active">
       <ContentHeader
-        title="Manage Jobs"
+        title="Manage Jobs "
         breadcrumbs={[
           { label: "Dashboard", to: "/admin/dashboard" },
-          { label: "Manage Jobs" },
+          { label: "Manage Jobs " },
         ]}
       />
       <section className="content">
@@ -283,12 +262,18 @@ export default function AddCompanys() {
                         type="search"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search jobs..."
+                        placeholder="Search"
                         title="Search within table"
                       />
                     </div>
                     <div className="bd-highlight">
-                      {/* Add button if needed */}
+                      {/* <button
+                        onClick={() => navigate("/admin/jobadd")}
+                        type="button"
+                        className="btn btn-block btn-primary"
+                      >
+                        <i className="fas fa-plus"></i> Add
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -325,15 +310,9 @@ export default function AddCompanys() {
                             justifyContent: "center",
                           },
                         },
-                        rows: {
-                          style: {
-                            cursor: "pointer",
-                          },
-                        },
                       }}
                       pointerOnHover
                       responsive
-                      onRowClicked={handleRowClick}
                     />
                   )}
                 </div>
@@ -342,300 +321,7 @@ export default function AddCompanys() {
           </div>
         </div>
       </section>
-
-      {/* Job Details Modal */}
-      {modalOpen && selectedJob && (
-        <div 
-          className="modal fade show d-block" 
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-          onClick={closeModal}
-        >
-          <div 
-            className="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-content">
-              {/* Modal Header */}
-              <div className="modal-header bg-gradient-primary text-white">
-                <div className="d-flex align-items-center w-100">
-                  <img
-                    src={selectedJob?.company?.logo || Env.REACT_APP_PROJECT_ICON}
-                    alt="company logo"
-                    height={40}
-                    width={40}
-                    className="rounded me-3"
-                  />
-                  <div className="flex-grow-1">
-                    <h4 className="modal-title mb-0 fw-bold">{selectedJob.title}</h4>
-                    <div className="d-flex align-items-center flex-wrap mt-1">
-                      <span className="badge bg-light text-dark me-2 mb-1">
-                        {selectedJob?.company?.name || Env.REACT_APP_PROJECT_NAME}
-                      </span>
-                      <span className={`badge ${packageConfig[selectedJob.package]?.bgColor || 'bg-dark'} text-white me-2 mb-1 d-flex align-items-center`}>
-                        {packageConfig[selectedJob.package]?.icon}
-                        <span className="ms-1">{selectedJob.package}</span>
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-close btn-close-white"
-                    onClick={closeModal}
-                  ></button>
-                </div>
-              </div>
-
-              {/* Modal Body */}
-              <div className="modal-body p-4">
-                <div className="row">
-                  {/* Left Column - Basic Information */}
-                  <div className="col-lg-8">
-                    {/* Job Description */}
-                    <div className="card mb-4">
-                      <div className="card-header bg-light">
-                        <h6 className="mb-0 d-flex align-items-center">
-                          <FileText size={18} className="me-2" />
-                          Job Description
-                        </h6>
-                      </div>
-                      <div className="card-body">
-                        <p className="mb-0">{selectedJob.description || "No description provided."}</p>
-                      </div>
-                    </div>
-
-                    {/* Requirements & Skills */}
-                    <div className="row">
-                      {selectedJob.requirements && (
-                        <div className="col-md-6">
-                          <div className="card mb-4">
-                            <div className="card-header bg-light">
-                              <h6 className="mb-0 d-flex align-items-center">
-                                <Award size={18} className="me-2" />
-                                Requirements
-                              </h6>
-                            </div>
-                            <div className="card-body">
-                              <p className="mb-0">{selectedJob.requirements}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                      {selectedJob.skills && (
-                        <div className="col-md-6">
-                          <div className="card mb-4">
-                            <div className="card-header bg-light">
-                              <h6 className="mb-0 d-flex align-items-center">
-                                <Users size={18} className="me-2" />
-                                Skills Required
-                              </h6>
-                            </div>
-                            <div className="card-body">
-                              <p className="mb-0">{selectedJob.skills}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bond Information */}
-                    {selectedJob.bondDescription && (
-                      <div className="card mb-4 border-warning">
-                        <div className="card-header bg-warning text-dark">
-                          <h6 className="mb-0 d-flex align-items-center">
-                            <Shield size={18} className="me-2" />
-                            Bond Information
-                          </h6>
-                        </div>
-                        <div className="card-body">
-                          <div className="row">
-                            {selectedJob.bondTime && (
-                              <div className="col-md-6">
-                                <strong>Bond Duration:</strong>
-                                <p className="mb-2">{selectedJob.bondTime}</p>
-                              </div>
-                            )}
-                            <div className="col-12">
-                              <strong>Bond Details:</strong>
-                              <p className="mb-0 text-muted">{selectedJob.bondDescription}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right Column - Job Details */}
-                  <div className="col-lg-4">
-                    <div className="card sticky-top" style={{ top: '20px' }}>
-                      <div className="card-header bg-light">
-                        <h6 className="mb-0">Job Details</h6>
-                      </div>
-                      <div className="card-body">
-                        {/* Salary */}
-                        <div className="d-flex align-items-center mb-3">
-                          <div className="bg-primary bg-opacity-10 p-2 rounded me-3">
-                            <DollarSign size={20} className="text-primary" />
-                          </div>
-                          <div>
-                            <small className="text-muted">Salary</small>
-                            <h6 className="mb-0 text-success">₹ {selectedJob.salary?.toLocaleString()} /-</h6>
-                          </div>
-                        </div>
-
-                        {/* Experience */}
-                        <div className="d-flex align-items-center mb-3">
-                          <div className="bg-info bg-opacity-10 p-2 rounded me-3">
-                            <Briefcase size={20} className="text-info" />
-                          </div>
-                          <div>
-                            <small className="text-muted">Experience</small>
-                            <h6 className="mb-0">{selectedJob.experience}</h6>
-                          </div>
-                        </div>
-
-                        {/* Job Type */}
-                        <div className="d-flex align-items-center mb-3">
-                          <div className="bg-success bg-opacity-10 p-2 rounded me-3">
-                            <Clock size={20} className="text-success" />
-                          </div>
-                          <div>
-                            <small className="text-muted">Job Type</small>
-                            <h6 className="mb-0">{selectedJob.type}</h6>
-                          </div>
-                        </div>
-
-                        {/* Location */}
-                        <div className="d-flex align-items-center mb-3">
-                          <div className="bg-warning bg-opacity-10 p-2 rounded me-3">
-                            <MapPin size={20} className="text-warning" />
-                          </div>
-                          <div>
-                            <small className="text-muted">Location</small>
-                            <h6 className="mb-0">{selectedJob.city}, {selectedJob.state}, {selectedJob.country}</h6>
-                          </div>
-                        </div>
-
-                        {/* Working Hours */}
-                        {selectedJob.workingHours && (
-                          <div className="d-flex align-items-center mb-3">
-                            <div className="bg-secondary bg-opacity-10 p-2 rounded me-3">
-                              <Clock3 size={20} className="text-secondary" />
-                            </div>
-                            <div>
-                              <small className="text-muted">Working Hours</small>
-                              <h6 className="mb-0">{selectedJob.workingHours}</h6>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Shift */}
-                        {selectedJob.shift && (
-                          <div className="d-flex align-items-center mb-3">
-                            <div className="bg-dark bg-opacity-10 p-2 rounded me-3">
-                              <Calendar size={20} className="text-dark" />
-                            </div>
-                            <div>
-                              <small className="text-muted">Shift</small>
-                              <h6 className="mb-0">{selectedJob.shift}</h6>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Notice Period */}
-                        {selectedJob.noticePeriod && (
-                          <div className="d-flex align-items-center mb-3">
-                            <div className="bg-danger bg-opacity-10 p-2 rounded me-3">
-                              <Bell size={20} className="text-danger" />
-                            </div>
-                            <div>
-                              <small className="text-muted">Notice Period</small>
-                              <h6 className="mb-0">{selectedJob.noticePeriod}</h6>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Flexible Working */}
-                        <div className="d-flex align-items-center mb-3">
-                          <div className="bg-success bg-opacity-10 p-2 rounded me-3">
-                            <Clock3 size={20} className="text-success" />
-                          </div>
-                          <div>
-                            <small className="text-muted">Flexible Working</small>
-                            <h6 className="mb-0">{selectedJob.flexibleWorkingHours ? 'Yes' : 'No'}</h6>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Benefits Card */}
-                    {selectedJob.benefits && (
-                      <div className="card mt-4">
-                        <div className="card-header bg-light">
-                          <h6 className="mb-0 d-flex align-items-center">
-                            <Gift size={18} className="me-2" />
-                            Employee Benefits
-                          </h6>
-                        </div>
-                        <div className="card-body">
-                          <div className="row">
-                            {formatBenefits(selectedJob.benefits).map((benefit, index) => (
-                              <div key={index} className="col-12 mb-2">
-                                <div className="d-flex align-items-center">
-                                  <div className="bg-success bg-opacity-10 rounded-circle p-1 me-2">
-                                    <Gift size={12} className="text-success" />
-                                  </div>
-                                  <span className="small">{benefit}</span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="modal-footer">
-                <div className="d-flex justify-content-between w-100">
-                  <div>
-                    <small className="text-muted">
-                      Posted on: {new Date(selectedJob.createdAt).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </small>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      className="btn btn-secondary me-2"
-                      onClick={closeModal}
-                    >
-                      Close
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      onClick={() => {
-                        closeModal();
-                        handleDelete(selectedJob._id);
-                      }}
-                    >
-                      <Trash2 size={16} className="me-1" />
-                      Delete Job
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <ToastContainer style={{ width: "auto" }} />
+      <ToastContainer  style={{ width: "auto" }} />
     </Layout>
   );
 }
