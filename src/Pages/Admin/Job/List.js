@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import {  Info, Trash2 } from "lucide-react";
+import { Info, Trash2 } from "lucide-react";
 import { Shield, Star, Crown, Gem } from "lucide-react"; // icons
 import Layout from "../../../components/Layout";
 import ContentHeader from "../../../components/ContentHeader";
@@ -21,7 +21,8 @@ export default function AddCompanys() {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState({});
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   useEffect(() => {
     fetchRecords();
     // eslint-disable-next-line
@@ -99,7 +100,11 @@ export default function AddCompanys() {
     {
       name: "No",
       selector: (row, index) =>
-        row.isSkeleton ? <Skeleton width={20} /> : index + 1,
+        row.isSkeleton ? (
+          <Skeleton width={60} />
+        ) : (
+          (currentPage - 1) * perPage + index + 1
+        ),
       width: "60px",
       center: "true",
     },
@@ -110,7 +115,10 @@ export default function AddCompanys() {
       sortable: true,
       cell: (row) =>
         row.isSkeleton ? (
-          <Skeleton circle height={45} width={45} />
+          <>
+            <Skeleton circle height={30} width={30} padding={5} />
+            <Skeleton width={120} />
+          </>
         ) : (
           <div className=" d-flex align-items-center">
             <img
@@ -153,7 +161,7 @@ export default function AddCompanys() {
       sortable: true,
       width: "120px",
       cell: (row) =>
-        row.isSkeleton ? <Skeleton width={120} /> : `${row.experience}`,
+        row.isSkeleton ? <Skeleton width={90} /> : `${row.experience}`,
     },
     {
       name: "Salary",
@@ -167,7 +175,7 @@ export default function AddCompanys() {
       name: "Type",
       selector: (row) => row.type,
       sortable: true,
-      cell: (row) => (row.isSkeleton ? <Skeleton width={100} /> : row.type),
+      cell: (row) => (row.isSkeleton ? <Skeleton width={60} /> : row.type),
       width: "80px",
     },
     {
@@ -188,7 +196,7 @@ export default function AddCompanys() {
       center: "true",
       cell: (row) =>
         row.isSkeleton ? (
-          <Skeleton width={60} height={30} />
+          <Skeleton width={80} height={30} />
         ) : (
           <div className="d-flex">
             <button
@@ -201,7 +209,7 @@ export default function AddCompanys() {
                 })
               }
             >
-              <Info  size={16} />
+              <Info size={16} />
             </button>
             <button
               type="button"
@@ -234,7 +242,7 @@ export default function AddCompanys() {
   );
 
   // Skeleton rows
-  const skeletonData = Array(8)
+  const skeletonData = Array(5)
     .fill({})
     .map((_, index) => ({
       _id: index,
@@ -300,6 +308,18 @@ export default function AddCompanys() {
                       columns={columns}
                       data={filteredRecords}
                       pagination
+                      paginationPerPage={perPage}
+                      paginationRowsPerPageOptions={[10, 20, 30, 40]}
+                      onChangePage={(page) => setCurrentPage(page)}
+                      onChangeRowsPerPage={(newPerPage) =>
+                        setPerPage(newPerPage)
+                      }
+                      paginationComponentOptions={{
+                        rowsPerPageText: "Rows per page",
+                        rangeSeparatorText: "of",
+                        selectAllRowsItem: true,
+                        selectAllRowsItemText: "All",
+                      }}
                       className="custom-table"
                       noDataComponent="No data available"
                       highlightOnHover
@@ -308,6 +328,8 @@ export default function AddCompanys() {
                         headCells: {
                           style: {
                             justifyContent: "center",
+                            fontWeight: "bold",
+                            fontSize: "14px",
                           },
                         },
                       }}
@@ -321,7 +343,7 @@ export default function AddCompanys() {
           </div>
         </div>
       </section>
-      <ToastContainer  style={{ width: "auto" }} />
+      <ToastContainer style={{ width: "auto" }} />
     </Layout>
   );
 }
