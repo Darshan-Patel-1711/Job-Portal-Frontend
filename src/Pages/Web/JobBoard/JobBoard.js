@@ -6,6 +6,8 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import axios from "axios";
 import TimeAgo from "../../../utils/TimeAgo";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function JobBoard() {
   const [activeCategory, setActiveCategory] = useState("All");
@@ -453,6 +455,8 @@ export default function JobBoard() {
         onClose={() => setShowModal(false)}
         packageTypes={packageTypes}
       />
+       <ToastContainer  style={{ width: "auto" }} />
+
     </WebLayout>
   );
 }

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import TimeAgo from "../utils/TimeAgo";
+
 
 const JobModal = ({ job, show, onClose, packageTypes }) => {
   const [isApplying, setIsApplying] = useState(false);
@@ -49,10 +50,16 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
           'Content-Type': 'multipart/form-data',
         }
       });
-      toast.success(response.data.massege);
+      toast.success(response.data.massege || "Application submitted successfully");
+      setApplicationData({
+        name: "",
+        email: "",
+        phone: "",
+        resume: null
+      })
       onClose();
     } catch (error) {
-      toast.error(error.response.massege);
+      toast.error(error.response?.data?.message || "Failed to submit application");
     } finally {
       setIsApplying(false);
     }
@@ -309,7 +316,7 @@ const JobModal = ({ job, show, onClose, packageTypes }) => {
           </div>
         </div>
       </div>
-       <ToastContainer  style={{ width: "auto" }} />
+       
     </div>
   );
 };

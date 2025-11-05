@@ -8,6 +8,8 @@ import axios from "axios";
 import DataTable from "react-data-table-component";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Chart.js imports
 import {
@@ -64,7 +66,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!localStorage.getItem("alertShown")) {
       // Replace toast with alert
-      alert("Login successfully");
+     toast.success("Login successfully");
       localStorage.setItem("alertShown", "true");
     }
     fetchRecords();
@@ -536,6 +538,7 @@ export default function Dashboard() {
           <div className="row"></div>
         </div>
       </section>
+      <ToastContainer style={{ width: "auto" }} />
     </Layout>
   );
 }
