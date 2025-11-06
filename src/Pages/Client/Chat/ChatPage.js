@@ -78,15 +78,10 @@ export default function ChatPage({ closeModal }) {
     <div className="modal-dialog modal-xl">
       <div className="modal-content">
         {/* Header */}
-        <div className="modal-header">
-          <h5 className="modal-title">{peerName}</h5>
-          <button className="close" onClick={closeModal}>
-            <span>&times;</span>
-          </button>
-        </div>
+        
 
         {/* Body */}
-        <div className="modal-body">
+        <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">
             <div className="card-header">
               <h3 className="card-title">Direct Chat</h3>
@@ -96,107 +91,58 @@ export default function ChatPage({ closeModal }) {
                   className="btn btn-tool"
                   onClick={closeModal}
                 >
-                  {" "}
                   <i className="fas fa-times" />
                 </button>
               </div>
             </div>
 
             <div className="card-body">
-              <div className="direct-chat-messages">
-                {/* LEFT MESSAGE */}
-                <div className="direct-chat-msg">
-                  <div className="direct-chat-infos clearfix">
-                    <span className="direct-chat-name float-left">
-                      Alexander Pierce
-                    </span>
-                  </div>
-                  <img
-                    className="direct-chat-img"
-                    src="https://cdn-icons-png.freepik.com/512/16800/16800177.png"
-                    alt="d"
-                  />
-                  <div className="direct-chat-text">
-                    Is this template really for free? That's unbelievable!
-                  </div>
-                </div>
-
-                {/* RIGHT MESSAGE */}
-                <div className="direct-chat-msg right">
-                  <div className="direct-chat-infos clearfix">
-                    <span className="direct-chat-name float-right">
-                      Sarah Bullock
-                    </span>
-                  </div>
-                  <img
-                    className="direct-chat-img"
-                    src="https://cdn-icons-png.freepik.com/512/16800/16800177.png"
-                    alt="ss"
-                  />
-                  <div className="direct-chat-text">You better believe it!</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card-footer">
-              <form action="#" method="post">
-                <div className="input-group">
-                  <input
-                    type="text"
-                    name="message"
-                    placeholder="Type Message ..."
-                    className="form-control"
-                  />
-                  <span className="input-group-append">
-                    <button type="button" className="btn btn-primary">
-                      Send
-                    </button>
-                  </span>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <div className="d-flex border rounded" style={{ height: "50vh" }}>
-            <div className="d-flex flex-column flex-grow-1">
-              {/* Chat box */}
-              <div
+              <div 
+                className="direct-chat-messages" 
                 ref={msgBoxRef}
-                className="flex-grow-1 p-3 overflow-auto bg-white"
+                
               >
                 {messages.map((m, i) => {
                   const isMine = m.senderId === meId;
                   return (
                     <div
                       key={i}
-                      className={`mb-2 d-flex ${
-                        isMine ? "justify-content-end" : "justify-content-start"
-                      }`}
+                      className={`direct-chat-msg ${isMine ? "right" : ""}`}
                     >
-                      <span
-                        className={` px-3 rounded   ${
-                          isMine ? "bg-primary text-white" : "bg-secondary"
-                        }`}
-                      >
+                      <img
+                        className="direct-chat-img"
+                        src="https://cdn-icons-png.freepik.com/512/16800/16800177.png"
+                        alt="user"
+                      />
+                      <div className="direct-chat-text">
                         {m.message}
-                      </span>
+                      </div>
                     </div>
                   );
                 })}
               </div>
+            </div>
 
-              {/* Input */}
-              <div className="d-flex p-2 border-top bg-light">
+            <div className="card-footer">
+              <div className="input-group">
                 <input
+                  type="text"
+                  name="message"
+                  placeholder="Type Message ..."
+                  className="form-control"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                  className="form-control"
-                  placeholder="Type message..."
                 />
-                <button className="btn btn-dark ms-2" onClick={sendMessage}>
-                  Send
-                </button>
+                <span className="input-group-append">
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    onClick={sendMessage}
+                  >
+                    Send
+                  </button>
+                </span>
               </div>
             </div>
           </div>
