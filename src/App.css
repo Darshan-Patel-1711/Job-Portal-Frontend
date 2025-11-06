@@ -72,6 +72,7 @@
 .fOpDBU {
   min-height: 44px !important;
 }
+
 .rdt_TableCell {
   border-left: 1px solid #ccc;
 }
@@ -89,6 +90,7 @@
   font-size: 13px;
   font-weight: bold;
 }
+
 .custom-table .kFhx {
   position: relative;
   display: flex;
@@ -99,9 +101,11 @@
   padding-right: 5px;
   word-break: break-word;
 }
+
 .custom-table .rdt_TableRow {
   min-height: 40px;
 }
+
 .custom-table .rdt_TableRow:hover {
   background-color: #e4e9ef;
   cursor: pointer;
@@ -183,6 +187,7 @@
   fill: rgb(186, 184, 184);
   margin: -6px -6px -3px -3px !important;
 }
+
 .hNPFtm {
   fill: black !important;
 }
@@ -419,7 +424,7 @@
 # Stats Section
 --------------------------------------------------------------*/
 .stats .stats-item {
- 
+
   padding: 30px;
 }
 
@@ -520,6 +525,7 @@
   left: 0;
   z-index: -2;
 }
+
 .bg:before {
   content: "";
   width: 100%;
@@ -531,36 +537,43 @@
   left: 0;
   opacity: 0.1;
 }
+
 @keyframes sf-fly-by-1 {
   from {
     transform: translateZ(-600px);
     opacity: 0.5;
   }
+
   to {
     transform: translateZ(0);
     opacity: 0.5;
   }
 }
+
 @keyframes sf-fly-by-2 {
   from {
     transform: translateZ(-1200px);
     opacity: 0.5;
   }
+
   to {
     transform: translateZ(-600px);
     opacity: 0.5;
   }
 }
+
 @keyframes sf-fly-by-3 {
   from {
     transform: translateZ(-1800px);
     opacity: 0.5;
   }
+
   to {
     transform: translateZ(-1200px);
     opacity: 0.5;
   }
 }
+
 .star-field {
   position: fixed;
   top: 0;
@@ -571,37 +584,108 @@
   -webkit-perspective: 600px;
   z-index: 1;
 }
+
 .star-field .layer {
-  box-shadow: -411px -476px #ff4d4d, /* red */ 777px -407px #210be9,
-    /* blue */ -387px -477px #ffffff, /* white */ -91px -235px #ffd700,
-    /* golden */ 491px -460px #00ffea, /* cyan */ 892px -128px #ff69b4,
-    /* pink */ 758px -277px #32cd32, /* green */ 596px 378px #ff8c00,
-    /* orange */ 647px 423px #ba55d3, /* purple */ 183px 389px #00ffff,
-    /* aqua */ 524px -237px #ff1493, /* deep pink */ 679px -535px #00ff00,
-    /* lime */ 158px 399px #ff4500, /* orange-red */ 157px 249px #add8e6,
-    /* light blue */ 81px -450px #ffff00, /* yellow */ 719px -360px #1e90ff,
-    /* dodger blue */ -499px 473px #ff00ff, /* magenta */ -158px -349px #00ced1,
-    /* turquoise */ 870px -134px #ff6347, /* tomato */ 446px 404px #7fff00,
-    /* chartreuse */ 440px 490px #ffa500, /* orange */ 414px 507px #9400d3,
-    /* dark violet */ -12px 246px #ffffff, /* white */ -384px 369px #00bfff,
-    /* deep sky blue */ 641px -413px #ff69b4, /* hot pink */ 822px 516px #8a2be2,
-    /* blue violet */ 449px 132px #00fa9a,
-    /* medium spring green */ 727px 146px #ffdead,
-    /* navajo white */ -315px -488px #adff2f,
-    /* green yellow */ 952px -70px #f0e68c, /* khaki */ -869px -29px #00ffff,
-    /* aqua */ 502px 80px #dc143c, /* crimson */ 764px 342px #87ceeb,
-    /* sky blue */ -150px -380px #ff7f50, /* coral */ 654px -426px #00ff7f,
-    /* spring green */ -325px -263px #8b008b,
-    /* dark magenta */ 755px -447px #ffdab9,
-    /* peach puff */ 729px -177px #7b68ee,
-    /* medium slate blue */ -682px -391px #ffffe0,
-    /* light yellow */ 554px -176px #ff1493,
-    /* deep pink */ -85px -428px #32cd32, /* lime green */ 714px 55px #ffa07a,
-    /* light salmon */ 359px -285px #40e0d0,
-    /* turquoise */ -362px -508px #ff00ff, /* magenta */ 468px -265px #ffffff,
-    /* white */ 74px -500px #ffff00, /* yellow */ -514px 383px #00bfff,
-    /* deep sky blue */ 730px -92px #ff4500,
-    /* orange red */ -112px 287px #9932cc, /* dark orchid */ -853px 79px #00ffea; /* cyan */
+  box-shadow: -411px -476px #ff4d4d,
+    /* red */
+    777px -407px #210be9,
+    /* blue */
+    -387px -477px #ffffff,
+    /* white */
+    -91px -235px #ffd700,
+    /* golden */
+    491px -460px #00ffea,
+    /* cyan */
+    892px -128px #ff69b4,
+    /* pink */
+    758px -277px #32cd32,
+    /* green */
+    596px 378px #ff8c00,
+    /* orange */
+    647px 423px #ba55d3,
+    /* purple */
+    183px 389px #00ffff,
+    /* aqua */
+    524px -237px #ff1493,
+    /* deep pink */
+    679px -535px #00ff00,
+    /* lime */
+    158px 399px #ff4500,
+    /* orange-red */
+    157px 249px #add8e6,
+    /* light blue */
+    81px -450px #ffff00,
+    /* yellow */
+    719px -360px #1e90ff,
+    /* dodger blue */
+    -499px 473px #ff00ff,
+    /* magenta */
+    -158px -349px #00ced1,
+    /* turquoise */
+    870px -134px #ff6347,
+    /* tomato */
+    446px 404px #7fff00,
+    /* chartreuse */
+    440px 490px #ffa500,
+    /* orange */
+    414px 507px #9400d3,
+    /* dark violet */
+    -12px 246px #ffffff,
+    /* white */
+    -384px 369px #00bfff,
+    /* deep sky blue */
+    641px -413px #ff69b4,
+    /* hot pink */
+    822px 516px #8a2be2,
+    /* blue violet */
+    449px 132px #00fa9a,
+    /* medium spring green */
+    727px 146px #ffdead,
+    /* navajo white */
+    -315px -488px #adff2f,
+    /* green yellow */
+    952px -70px #f0e68c,
+    /* khaki */
+    -869px -29px #00ffff,
+    /* aqua */
+    502px 80px #dc143c,
+    /* crimson */
+    764px 342px #87ceeb,
+    /* sky blue */
+    -150px -380px #ff7f50,
+    /* coral */
+    654px -426px #00ff7f,
+    /* spring green */
+    -325px -263px #8b008b,
+    /* dark magenta */
+    755px -447px #ffdab9,
+    /* peach puff */
+    729px -177px #7b68ee,
+    /* medium slate blue */
+    -682px -391px #ffffe0,
+    /* light yellow */
+    554px -176px #ff1493,
+    /* deep pink */
+    -85px -428px #32cd32,
+    /* lime green */
+    714px 55px #ffa07a,
+    /* light salmon */
+    359px -285px #40e0d0,
+    /* turquoise */
+    -362px -508px #ff00ff,
+    /* magenta */
+    468px -265px #ffffff,
+    /* white */
+    74px -500px #ffff00,
+    /* yellow */
+    -514px 383px #00bfff,
+    /* deep sky blue */
+    730px -92px #ff4500,
+    /* orange red */
+    -112px 287px #9932cc,
+    /* dark orchid */
+    -853px 79px #00ffea;
+  /* cyan */
 
   transform-style: preserve-3d;
   position: absolute;
@@ -616,9 +700,11 @@
 .star-field .layer:nth-child(1) {
   animation: sf-fly-by-1 5s linear infinite;
 }
+
 .star-field .layer:nth-child(2) {
   animation: sf-fly-by-2 5s linear infinite;
 }
+
 .star-field .layer:nth-child(3) {
   animation: sf-fly-by-3 5s linear infinite;
 }
@@ -635,6 +721,7 @@
   -ms-flex-pack: center;
   justify-content: center;
 }
+
 .kMgreK {
   min-height: 40px !important;
 }
@@ -704,11 +791,9 @@
   float: left;
   position: relative;
   background: rgb(110, 166, 239);
-  background: linear-gradient(
-    183deg,
-    rgba(110, 166, 239, 1) 11%,
-    rgba(30, 92, 172, 1) 100%
-  );
+  background: linear-gradient(183deg,
+      rgba(110, 166, 239, 1) 11%,
+      rgba(30, 92, 172, 1) 100%);
   border-radius: 0 6px 6px 6px;
   transition: 0.1s ease-out;
   cursor: pointer;
@@ -725,15 +810,14 @@
     height: 90px;
     margin: 15px;
     background: rgb(110, 166, 239);
-    background: linear-gradient(
-      183deg,
-      rgba(110, 166, 239, 1) 11%,
-      rgba(30, 92, 172, 1) 100%
-    );
+    background: linear-gradient(183deg,
+        rgba(110, 166, 239, 1) 11%,
+        rgba(30, 92, 172, 1) 100%);
     border-radius: 0 6px 6px 6px;
     transition: 0.1s ease-out;
   }
 }
+
 /*-------------folder box----x------- */
 
 .folder:hover {
@@ -752,6 +836,7 @@
   top: -10.3px;
   left: 0px;
 }
+
 /*-------------file opener----x------- */
 
 /*------------- Document ----------- */
@@ -765,6 +850,7 @@
   top: 5.6px;
   left: 4px;
 }
+
 /*-------------Document ----x------- */
 
 /*------------- text  ----------- */
@@ -800,10 +886,12 @@
 /* general responsive container */
 .Toastify__toast-container {
   left: auto !important;
-  right: 16px !important; /* desktop: right corner */
+  right: 16px !important;
+  /* desktop: right corner */
   top: 16px !important;
   width: auto !important;
-  max-width: 420px;        /* desktop max width */
+  max-width: 420px;
+  /* desktop max width */
   box-sizing: border-box;
   padding: 0 8px;
   z-index: 9999;
@@ -814,7 +902,7 @@
   padding: 10px 14px;
   font-size: 14px;
   border-radius: 10px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 /* mobile phones */
@@ -822,9 +910,11 @@
   .Toastify__toast-container {
     left: 50% !important;
     right: auto !important;
-    transform: translateX(-50%) !important; /* center the container */
+    transform: translateX(-50%) !important;
+    /* center the container */
     top: 12px !important;
-    max-width: 95vw !important;             /* almost full width */
+    max-width: 95vw !important;
+    /* almost full width */
     padding: 0 6px;
   }
 
@@ -842,6 +932,9 @@
     padding: 0;
   }
 }
+
+
+/* chat css */
 .direct-chat-msg.right {
   display: flex;
   flex-direction: row-reverse;
@@ -882,4 +975,96 @@
   height: 40px;
   border-radius: 50%;
   float: left;
+}
+
+.date-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.date-divider .line {
+  flex: 1;
+  height: 1px;
+  background: #ccc;
+}
+
+.date-divider .label {
+  margin: 0 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #555;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.direct-chat-text.msg-with-time {
+  position: relative;
+  padding-bottom: 16px !important;
+}
+
+.direct-chat-text .msg-time {
+  position: absolute;
+  bottom: 2px;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.direct-chat-text .msg-time.right-corner {
+  right: 8px;
+}
+
+.direct-chat-text .msg-time.left-corner {
+  left: 8px;
+}
+
+.date-divider {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.date-divider .line {
+  flex: 1;
+  height: 1px;
+  background: #ccc;
+}
+
+.date-divider .label {
+  margin: 0 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #555;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.msg-with-time {
+  position: relative;
+  padding-bottom: 16px !important;
+}
+
+.msg-time {
+  position: absolute;
+  bottom: 2px;
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.right-corner {
+  right: 8px;
+}
+
+.left-corner {
+  left: 8px;
+}
+
+.typing-indicator {
+  font-size: 12px;
+  color: #777;
+  padding-left: 15px;
+  margin-top: -8px;
 }

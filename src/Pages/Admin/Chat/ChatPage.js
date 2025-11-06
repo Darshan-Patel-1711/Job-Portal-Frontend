@@ -1,87 +1,87 @@
 // src/pages/Chat/ChatPage.jsx
-
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import Layout from "../../../components/Layout";
 
 export default function ChatPage() {
-  // ✅ STATIC URLs
   const apiUrl = process.env.REACT_APP_API_URL;
   const socketUrl = "http://localhost:3000";
   const token = localStorage.getItem("token");
-
-  // ✅ Logged-in user ID (localStorage → user object)
-  const loggedUser = localStorage.getItem("id")
-  
   const meId = localStorage.getItem("id");
 
   const [users, setUsers] = useState([]);
-  const [peerId, setPeerId] = useState(null);
-  const [peerName, setPeerName] = useState("");
-
+  const [peer, setPeer] = useState(null);   // selected user object
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
 
   const [socket, setSocket] = useState(null);
+  const [typing, setTyping] = useState(false);
 
   const msgBoxRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
-  // ✅ Setup socket connection (STATIC)
+  // ✅ Socket connect
   useEffect(() => {
-    const s = io(socketUrl, {
-      transports: ["websocket", "polling"],
-    });
+    const s = io(socketUrl, { transports: ["websocket", "polling"] });
     setSocket(s);
-
     return () => s.disconnect();
   }, []);
 
-  // ✅ Join socket room with logged user ID
+  // ✅ Join Room
   useEffect(() => {
     if (socket && meId) {
       socket.emit("join", { userId: meId });
     }
   }, [socket, meId]);
 
-  // ✅ Fetch users list
+  // ✅ Fetch Users
   useEffect(() => {
     axios
-      .get(`${apiUrl}user/get`, {
-        headers: { Authorization: token },
-      })
+      .get(`${apiUrl}user/get`, { headers: { Authorization: token } })
       .then((res) => setUsers(res.data))
       .catch(() => {});
   }, []);
 
-  // ✅ Load chat history when peer changes
+  // ✅ Load Chat History when user selects
   useEffect(() => {
-    if (!peerId || !meId) return;
+    if (!peer) return;
 
     axios
-      .get(`${apiUrl}chat/${meId}/${peerId}`)
+      .get(`${apiUrl}chat/${meId}/${peer._id}`)
       .then((res) => setMessages(res.data))
       .catch(() => {});
-  }, [peerId, meId]);
+  }, [peer]);
 
-  // ✅ Receive messages from socket
+  // ✅ Receive Message + Typing
   useEffect(() => {
     if (!socket) return;
 
     socket.on("receiveMessage", (msg) => {
-      // Only push messages for this chat pair
       if (
-        (msg.senderId === meId && msg.receiverId === peerId) ||
-        (msg.senderId === peerId && msg.receiverId === meId)
+        (msg.senderId === meId && msg.receiverId === peer?._id) ||
+        (msg.senderId === peer?._id && msg.receiverId === meId)
       ) {
         setMessages((prev) => [...prev, msg]);
       }
     });
 
-    return () => socket.off("receiveMessage");
-  }, [socket, peerId, meId]);
+    socket.on("typing", (id) => {
+      if (peer && id === peer._id) setTyping(true);
+    });
 
-  // ✅ Auto scroll chat to bottom
+    socket.on("stopTyping", (id) => {
+      if (peer && id === peer._id) setTyping(false);
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+      socket.off("typing");
+      socket.off("stopTyping");
+    };
+  }, [socket, peer]);
+
+  // ✅ Auto Scroll
   useEffect(() => {
     if (msgBoxRef.current) {
       msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
@@ -90,51 +90,60 @@ export default function ChatPage() {
 
   // ✅ Send message
   const sendMessage = () => {
-    if (!text.trim()) return;
+    if (!text.trim() || !peer) return;
 
     socket.emit("sendMessage", {
       senderId: meId,
-      receiverId: peerId,
+      receiverId: peer._id,
       message: text,
     });
 
+    socket.emit("stopTyping", meId);
     setText("");
   };
 
-  return (
-    <Layout ac1="active">
-      <div
-        style={{
-          display: "flex",
-          height: "90vh",
-          border: "1px solid #ddd",
-          borderRadius: "10px",
-          overflow: "hidden",
-        }}
-      >
-        {/* ✅ Users List (Left Panel) */}
-        <div
-          style={{
-            width: "260px",
-            borderRight: "1px solid #ddd",
-            overflowY: "auto",
-          }}
-        >
-          <h4 style={{ padding: "10px", background: "#f7f7f7", margin: 0 }}>
-            Users
-          </h4>
+  // ✅ Typing handler
+  const handleTyping = (e) => {
+    setText(e.target.value);
+    socket.emit("typing", meId);
 
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("stopTyping", meId);
+    }, 700);
+  };
+
+  // ✅ Date Helpers
+  const getStamp = (m) => m?.createdAt || m?.timestamp || Date.now();
+  const fmtDate = (ts) =>
+    new Date(ts).toLocaleDateString("en-IN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  const fmtTime = (ts) =>
+    new Date(ts).toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  return (
+    <>
+      <div style={{ display: "flex", height: "90vh" }}>
+        
+        {/* ✅ Users List */}
+        <div style={{ width: "260px", borderRight: "1px solid #ddd" }}>
+          <h4 className="p-2 bg-light m-0">Users</h4>
           {users.map((u) => (
             <div
               key={u._id}
-              onClick={() => {
-                setPeerId(u._id);
-                setPeerName(`${u.firstName} ${u.lastName}`);
-              }}
+              onClick={() => setPeer(u)}
+              className="p-2"
               style={{
-                padding: "10px",
                 cursor: "pointer",
-                background: peerId === u._id ? "#e6f7ff" : "white",
+                background: peer?._id === u._id ? "#e6f7ff" : "white",
                 borderBottom: "1px solid #eee",
               }}
             >
@@ -143,92 +152,99 @@ export default function ChatPage() {
           ))}
         </div>
 
-        {/* ✅ Chat Window (Right Panel) */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Chat Header */}
-          <div
-            style={{
-              padding: "10px",
-              borderBottom: "1px solid #ddd",
-              background: "#fafafa",
-            }}
-          >
-            <b>Chat with:</b> {peerName || "Select user"}
-          </div>
+        {/* ✅ Chat Window */}
+        <div style={{ flex: 1 }}>
+          <div className="card direct-chat direct-chat-primary" style={{ height: "100%" }}>
+            
+            {/* ✅ Header */}
+            <div className="card-header">
+              <h3 className="card-title">
+                {peer ? `Chat with ${peer.firstName}` : "Select user"}
+              </h3>
+            </div>
 
-          {/* Chat Messages */}
-          <div
-            ref={msgBoxRef}
-            style={{
-              flex: 1,
-              padding: "10px",
-              overflowY: "auto",
-              background: "#fff",
-            }}
-          >
-            {messages.map((m, i) => {
-              const isMine = m.senderId === meId;
-              return (
-                <div
-                  key={i}
-                  style={{
-                    textAlign: isMine ? "right" : "left",
-                    margin: "8px 0",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      padding: "8px 10px",
-                      borderRadius: "10px",
-                      background: isMine ? "#DCF8C6" : "#f1f1f1",
-                    }}
-                  >
-                    {m.message}
+            {/* ✅ Chat Messages */}
+            <div className="card-body">
+              <div className="direct-chat-messages" ref={msgBoxRef}>
+                {messages.map((m, i) => {
+                  const isMine = m.senderId === meId;
+                  const curTs = getStamp(m);
+                  const prev = messages[i - 1];
+
+                  const needDate =
+                    i === 0 ||
+                    new Date(getStamp(prev)).toDateString() !==
+                      new Date(curTs).toDateString();
+
+                  return (
+                    <React.Fragment key={i}>
+                      {needDate && (
+                        <div className="date-divider">
+                          <div className="line" />
+                          <span className="label">{fmtDate(curTs)}</span>
+                          <div className="line" />
+                        </div>
+                      )}
+
+                      <div className={`direct-chat-msg ${isMine ? "right" : ""}`}>
+                        <img
+                          src={
+                            isMine
+                              ? peer?.profileImage
+                              : peer?.profileImage || "/user.png"
+                          }
+                          className="direct-chat-img"
+                          alt=""
+                        />
+
+                        <div className="direct-chat-text msg-with-time">
+                          {m.message}
+
+                          <span
+                            className={`msg-time ${
+                              isMine ? "right-corner" : "left-corner"
+                            }`}
+                          >
+                            {fmtTime(curTs)}
+                          </span>
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
+
+                {/* Typing */}
+                {typing && (
+                  <div className="typing-indicator">
+                    {peer?.firstName} is typing…
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ✅ Input */}
+            {peer && (
+              <div className="card-footer">
+                <div className="input-group">
+                  <input
+                    type="text"
+                    placeholder="Type Message ..."
+                    className="form-control direct-chat-input"
+                    value={text}
+                    onChange={handleTyping}
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                  />
+                  <span className="input-group-append">
+                    <button className="btn btn-primary" onClick={sendMessage}>
+                      Send
+                    </button>
                   </span>
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
-
-          {/* Chat Input */}
-          {peerId && (
-            <div
-              style={{
-                display: "flex",
-                padding: "10px",
-                borderTop: "1px solid #ddd",
-                background: "#fafafa",
-              }}
-            >
-              <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                placeholder="Type message..."
-                style={{
-                  flex: 1,
-                  padding: "8px",
-                  borderRadius: "6px",
-                  border: "1px solid #ccc",
-                }}
-              />
-              <button
-                onClick={sendMessage}
-                style={{
-                  padding: "8px 14px",
-                  marginLeft: "8px",
-                  background: "#111",
-                  color: "#fff",
-                  borderRadius: "6px",
-                }}
-              >
-                Send
-              </button>
-            </div>
-          )}
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
