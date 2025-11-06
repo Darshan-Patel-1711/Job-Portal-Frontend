@@ -86,32 +86,18 @@ export default function ChatPage({ closeModal }) {
             <div className="card-header">
               <h3 className="card-title">Direct Chat</h3>
               <div className="card-tools">
-                <button
-                  type="button"
-                  className="btn btn-tool"
-                  onClick={closeModal}
-                >
-                  <i className="fas fa-times" />
-                </button>
+                <button  type="button" className="btn btn-tool" onClick={closeModal}> <i className="fas fa-times" /> </button>
               </div>
             </div>
 
             <div className="card-body">
-              <div 
-                className="direct-chat-messages" 
-                ref={msgBoxRef}
-                
-              >
-                {messages.map((m, i) => {
-                  const isMine = m.senderId === meId;
+              <div  className="direct-chat-messages"  ref={msgBoxRef} >
+                {messages.map((m, i) => { const isMine = m.senderId === meId;
                   return (
-                    <div
-                      key={i}
-                      className={`direct-chat-msg ${isMine ? "right" : ""}`}
-                    >
+                    <div key={i} className={`direct-chat-msg ${isMine ? "right" : ""}`}>
                       <img
-                        className="direct-chat-img"
                         src="https://cdn-icons-png.freepik.com/512/16800/16800177.png"
+                        className="direct-chat-img"
                         alt="user"
                       />
                       <div className="direct-chat-text">
@@ -129,7 +115,7 @@ export default function ChatPage({ closeModal }) {
                   type="text"
                   name="message"
                   placeholder="Type Message ..."
-                  className="form-control"
+                  className="form-control direct-chat-input"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && sendMessage()}
