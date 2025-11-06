@@ -16,6 +16,8 @@ export default function Layout({
         { active: ac7, RName: "Reports", RLink: "/admin/reportdashboard", icon: "fas fa-briefcase" },
         { active: ac8, RName: "Company", RLink: "/admin/companyandpackage", icon: "fas fa-users" },
         { active: ac9, RName: "Profile", RLink: "/admin/adminprofile", icon: "fas fa-user" },
+        { active: ac9, RName: "clientchat", RLink: "/admin/clientchat", icon: "fas fa-user" },
+
         { active: ac10, RName: "Logout", RLink: "/admin/login", icon: "fas fa-sign-out-alt" , onClick: () => {
       // call logout  clear local storage
       localStorage.clear();
