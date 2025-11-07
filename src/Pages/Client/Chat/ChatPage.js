@@ -134,7 +134,7 @@ export default function ChatPage({ closeModal }) {
     });
 
   return (
-    <div className="modal-dialog modal-m">
+    <div className="modal-dialog modal-xl">
       <div className="modal-content">
         <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">

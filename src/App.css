@@ -964,7 +964,7 @@
 
 .direct-chat-msg .direct-chat-text {
   margin-left: 11px;
-  background-color: #f4f4f4;
+  min-width: 70px;
   padding: 8px 12px;
   border-radius: 5px;
   display: inline-block;
@@ -979,8 +979,8 @@
 
 .date-divider {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: start;
+  justify-content: start;
   margin: 8px 0;
 }
 
@@ -998,6 +998,7 @@
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 12px;
+ 
 }
 
 .direct-chat-text.msg-with-time {
@@ -1067,4 +1068,8 @@
   color: #777;
   padding-left: 15px;
   margin-top: -8px;
+}
+.direct-chat-messages{
+  height: auto;
+  overflow-y: scroll;
 }
