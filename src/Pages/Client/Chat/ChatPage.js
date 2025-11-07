@@ -1,3 +1,5 @@
+// src/pages/Chat/ChatPage.jsx
+
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -12,7 +14,7 @@ export default function ChatPage({ closeModal }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [socket, setSocket] = useState(null);
-  const [typing, setTyping] = useState(false);  
+  const [typing, setTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
   const msgBoxRef = useRef(null);
 
@@ -20,11 +22,11 @@ export default function ChatPage({ closeModal }) {
   useEffect(() => {
     const s = io(socketUrl, { transports: ["websocket", "polling"] });
     setSocket(s);
+
     return () => s.disconnect();
-    // eslint-disable-next-line
   }, []);
 
-  // ✅ Fetch Admin + User
+  // ✅ Fetch Profile (Admin + User)
   useEffect(() => {
     axios
       .get(`${apiUrl}admin/chatditails`, {
@@ -36,7 +38,6 @@ export default function ChatPage({ closeModal }) {
         setSuperAdminId(res.data.admin._id);
       })
       .catch(() => {});
-    // eslint-disable-next-line
   }, []);
 
   // ✅ Load chat history
@@ -47,24 +48,25 @@ export default function ChatPage({ closeModal }) {
       .get(`${apiUrl}chat/${meId}/${superAdminId}`)
       .then((res) => setMessages(res.data))
       .catch(() => {});
-      // eslint-disable-next-line
   }, [meId, superAdminId]);
 
-  // ✅ Join Room
+  // ✅ Join socket room
   useEffect(() => {
     if (socket && meId) {
       socket.emit("join", { userId: meId });
     }
   }, [socket, meId]);
 
-  // ✅ Receive messages + typing event
+  // ✅ Socket message listeners
   useEffect(() => {
     if (!socket) return;
 
+    // Receive new message
     socket.on("receiveMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
+    // Someone typing
     socket.on("typing", (id) => {
       if (id === superAdminId) setTyping(true);
     });
@@ -85,7 +87,7 @@ export default function ChatPage({ closeModal }) {
     if (msgBoxRef.current) {
       msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, typing]);
 
   // ✅ Send Message
   const sendMessage = () => {
@@ -97,8 +99,7 @@ export default function ChatPage({ closeModal }) {
       message: text,
     });
 
-    socket.emit("stopTyping", meId); // stop typing
-
+    socket.emit("stopTyping", meId);
     setText("");
   };
 
@@ -125,6 +126,7 @@ export default function ChatPage({ closeModal }) {
       month: "short",
       year: "numeric",
     });
+
   const fmtTime = (ts) =>
     new Date(ts).toLocaleTimeString("en-IN", {
       hour: "2-digit",
@@ -136,7 +138,7 @@ export default function ChatPage({ closeModal }) {
       <div className="modal-content">
         <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">
-
+            {/* Header */}
             <div className="card-header">
               <h3 className="card-title">
                 Chat with {admin ? admin.firstName : "Admin"}
@@ -148,9 +150,9 @@ export default function ChatPage({ closeModal }) {
               </div>
             </div>
 
+            {/* Messages */}
             <div className="card-body">
               <div className="direct-chat-messages" ref={msgBoxRef}>
-
                 {messages.map((m, i) => {
                   const isMine = m.senderId === meId;
                   const curTs = getStamp(m);
@@ -171,9 +173,13 @@ export default function ChatPage({ closeModal }) {
                         </div>
                       )}
 
-                      <div className={`direct-chat-msg ${isMine ? "right" : ""}`}>
+                      <div
+                        className={`direct-chat-msg ${isMine ? "right" : ""}`}
+                      >
                         <img
-                          src={isMine ? user?.profileImage : admin?.profileImage}
+                          src={
+                            isMine ? user?.profileImage : admin?.profileImage
+                          }
                           className="direct-chat-img"
                           alt="user"
                         />
@@ -194,7 +200,7 @@ export default function ChatPage({ closeModal }) {
                   );
                 })}
 
-                {/* ✅ ADMIN TYPING */}
+                {/* ✅ Typing Indicator */}
                 {typing && (
                   <div className="typing-indicator">
                     {admin?.firstName || "Admin"} is typing…
@@ -203,6 +209,7 @@ export default function ChatPage({ closeModal }) {
               </div>
             </div>
 
+            {/* Footer Input */}
             <div className="card-footer">
               <div className="input-group">
                 <input
@@ -220,7 +227,6 @@ export default function ChatPage({ closeModal }) {
                 </span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
