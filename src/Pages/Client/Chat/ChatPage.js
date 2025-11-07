@@ -8,14 +8,20 @@ export default function ChatPage({ closeModal }) {
   const apiUrl = process.env.REACT_APP_API_URL;
   const socketUrl = "http://localhost:3000";
   const meId = localStorage.getItem("id");
+
   const [admin, setAdmin] = useState(null);
   const [user, setUser] = useState(null);
   const [superAdminId, setSuperAdminId] = useState("");
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [socket, setSocket] = useState(null);
+
   const [typing, setTyping] = useState(false);
   const typingTimeoutRef = useRef(null);
+
+  const [isOnline, setIsOnline] = useState(false); // ✅ ONLINE STATUS
+
   const msgBoxRef = useRef(null);
 
   // ✅ Connect Socket
@@ -57,16 +63,16 @@ export default function ChatPage({ closeModal }) {
     }
   }, [socket, meId]);
 
-  // ✅ Socket message listeners
+  // ✅ Socket Listeners (messages + typing + online)
   useEffect(() => {
     if (!socket) return;
 
-    // Receive new message
+    // ✅ Receive new message
     socket.on("receiveMessage", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
 
-    // Someone typing
+    // ✅ Someone typing
     socket.on("typing", (id) => {
       if (id === superAdminId) setTyping(true);
     });
@@ -75,10 +81,22 @@ export default function ChatPage({ closeModal }) {
       if (id === superAdminId) setTyping(false);
     });
 
+    // ✅ ONLINE
+    socket.on("userOnline", (id) => {
+      if (id === superAdminId) setIsOnline(true);
+    });
+
+    // ✅ OFFLINE
+    socket.on("userOffline", (id) => {
+      if (id === superAdminId) setIsOnline(false);
+    });
+
     return () => {
       socket.off("receiveMessage");
       socket.off("typing");
       socket.off("stopTyping");
+      socket.off("userOnline");
+      socket.off("userOffline");
     };
   }, [socket, superAdminId]);
 
@@ -138,10 +156,17 @@ export default function ChatPage({ closeModal }) {
       <div className="modal-content">
         <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">
-            {/* Header */}
-            <div className="card-header">
+            {/* ✅ Header */}
+            <div className="card-header d-flex align-items-center justify-content-between">
               <h3 className="card-title">
-                Chat with {admin ? admin.firstName : "Admin"}
+                Chat with {admin ? admin.firstName : "Admin"}{" "}
+                <span style={{ marginLeft: 10, fontSize: 14 }}>
+                  {isOnline ? (
+                    <span style={{ color: "green" }}>● Online</span>
+                  ) : (
+                    <span style={{ color: "red" }}>● Offline</span>
+                  )}
+                </span>
               </h3>
               <div className="card-tools">
                 <button className="btn btn-tool" onClick={closeModal}>
@@ -150,7 +175,7 @@ export default function ChatPage({ closeModal }) {
               </div>
             </div>
 
-            {/* Messages */}
+            {/* ✅ Messages */}
             <div className="card-body">
               <div className="direct-chat-messages" ref={msgBoxRef}>
                 {messages.map((m, i) => {
@@ -209,7 +234,7 @@ export default function ChatPage({ closeModal }) {
               </div>
             </div>
 
-            {/* Footer Input */}
+            {/* ✅ Footer Input */}
             <div className="card-footer">
               <div className="input-group">
                 <input
