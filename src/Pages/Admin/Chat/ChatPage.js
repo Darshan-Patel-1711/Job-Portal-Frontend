@@ -35,10 +35,19 @@ export default function ChatPage({ closeModal }) {
   // ✅ Fetch Users
   useEffect(() => {
     axios
-      .get(`${apiUrl}user/get`, { headers: { Authorization: token } })
+      .get(
+        `${apiUrl}user/get`,
+
+        {
+          headers: {
+            Authorization: token,
+            "Cache-Control": "no-cache",
+          },
+        }
+      )
       .then((res) => setUsers(res.data))
       .catch(() => {});
-      // eslint-disable-next-line
+    // eslint-disable-next-line
   }, []);
 
   // ✅ Load Chat History when user selects
@@ -49,7 +58,7 @@ export default function ChatPage({ closeModal }) {
       .get(`${apiUrl}chat/${meId}/${peer._id}`)
       .then((res) => setMessages(res.data))
       .catch(() => {});
-      // eslint-disable-next-line
+    // eslint-disable-next-line
   }, [peer]);
 
   // ✅ Receive Message + Typing
@@ -113,7 +122,6 @@ export default function ChatPage({ closeModal }) {
       socket.emit("stopTyping", meId);
     }, 700);
   };
-
   // ✅ Date Helpers
   const getStamp = (m) => m?.createdAt || m?.timestamp || Date.now();
   const fmtDate = (ts) =>
@@ -136,7 +144,7 @@ export default function ChatPage({ closeModal }) {
           <div className="card direct-chat direct-chat-primary">
             <div className="card-header">
               <h3 className="card-title">
-                
+                {peer ? `${peer.firstName} ${peer.lastName}` : "Select User"}
               </h3>
               <div className="card-tools">
                 <button className="btn btn-tool" onClick={closeModal}>
@@ -144,22 +152,38 @@ export default function ChatPage({ closeModal }) {
                 </button>
               </div>
             </div>
-            <div className="d-flex" >
+            <div className="d-flex">
               {/* ✅ Users List */}
               <div style={{ width: "260px", borderRight: "1px solid #ddd" }}>
                 <h4 className="p-2 bg-light m-0">Users</h4>
+
                 {users.map((u) => (
                   <div
                     key={u._id}
                     onClick={() => setPeer(u)}
-                    className="p-2"
+                    className="p-2 d-flex align-items-center gap-2"
                     style={{
                       cursor: "pointer",
                       background: peer?._id === u._id ? "#e6f7ff" : "white",
                       borderBottom: "1px solid #eee",
                     }}
                   >
-                    {u.firstName} {u.lastName}
+                    {/* ✅ User Image */}
+                    <img
+                      src={
+                        u.profileImage ||
+                        "https://cdn-icons-png.freepik.com/512/3177/3177440.png?uid=R165505067&ga=GA1.1.701570569.1719990316"
+                      }
+                      width={35}
+                      height={35}
+                      alt="avatar"
+                      className="img-circle img-bordered-sm mr-2"
+                    />
+
+                    {/* ✅ User Name */}
+                    <span>
+                      {u.firstName} {u.lastName}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -209,7 +233,7 @@ export default function ChatPage({ closeModal }) {
                                 src={
                                   isMine
                                     ? peer?.profileImage
-                                    : peer?.profileImage || "/user.png"
+                                    : peer?.profileImage || "https://cdn-icons-png.freepik.com/512/3177/3177440.png?uid=R165505067&ga=GA1.1.701570569.1719990316"
                                 }
                                 className="direct-chat-img"
                                 alt=""
