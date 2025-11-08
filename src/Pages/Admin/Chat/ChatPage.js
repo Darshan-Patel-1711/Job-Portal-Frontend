@@ -8,60 +8,58 @@ export default function ChatPage({ closeModal }) {
   const socketUrl = "http://localhost:3000";
   const token = localStorage.getItem("token");
   const meId = localStorage.getItem("id");
-  const [users, setUsers] = useState([]);
-  const [peer, setPeer] = useState(null); // selected user object
-  const [messages, setMessages] = useState([]);
+
+  const [users, setUsers] = useState([]);            // ALL USERS LIST (live)
+  const [peer, setPeer] = useState(null);            // selected chat partner
+  const [messages, setMessages] = useState([]);      // chat messages
   const [text, setText] = useState("");
   const [socket, setSocket] = useState(null);
   const [typing, setTyping] = useState(false);
+
   const msgBoxRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // ✅ Socket connect
+  // ✅ Connect Socket
   useEffect(() => {
-    const s = io(socketUrl, { transports: ["websocket", "polling"] });
+    const s = io(socketUrl, { transports: ["websocket"] });
     setSocket(s);
     return () => s.disconnect();
-    // eslint-disable-next-line
   }, []);
 
-  // ✅ Join Room
+  // ✅ Join Socket room
   useEffect(() => {
     if (socket && meId) {
       socket.emit("join", { userId: meId });
     }
   }, [socket, meId]);
 
-  // ✅ Fetch Users
+  // ✅ Listen to Live Users List (online, unseen, images)
   useEffect(() => {
-    axios
-      .get(
-        `${apiUrl}user/get`,
+    if (!socket) return;
 
-        {
-          headers: {
-            Authorization: token,
-            "Cache-Control": "no-cache",
-          },
-        }
-      )
-      .then((res) => setUsers(res.data))
-      .catch(() => {});
-    // eslint-disable-next-line
-  }, []);
+    socket.on("usersList", (list) => {
+      setUsers(list);
+    });
 
-  // ✅ Load Chat History when user selects
+    return () => socket.off("usersList");
+  }, [socket]);
+
+  // ✅ Load chat history on user click
   useEffect(() => {
     if (!peer) return;
 
     axios
-      .get(`${apiUrl}chat/${meId}/${peer._id}`)
-      .then((res) => setMessages(res.data))
+      .get(`${apiUrl}chat/${meId}/${peer._id}`, {
+        headers: { Authorization: token },
+      })
+      .then((res) => {
+        setMessages(res.data);
+        socket.emit("markSeen", { userId: meId, fromId: peer._id });
+      })
       .catch(() => {});
-    // eslint-disable-next-line
-  }, [peer]);
+  }, [peer, apiUrl, meId, token, socket]);
 
-  // ✅ Receive Message + Typing
+  // ✅ Receive Message + Typing events
   useEffect(() => {
     if (!socket) return;
 
@@ -71,6 +69,11 @@ export default function ChatPage({ closeModal }) {
         (msg.senderId === peer?._id && msg.receiverId === meId)
       ) {
         setMessages((prev) => [...prev, msg]);
+      }
+
+      // mark seen if it's from peer
+      if (msg.senderId === peer?._id) {
+        socket.emit("markSeen", { userId: meId, fromId: peer._id });
       }
     });
 
@@ -87,10 +90,9 @@ export default function ChatPage({ closeModal }) {
       socket.off("typing");
       socket.off("stopTyping");
     };
-    // eslint-disable-next-line
-  }, [socket, peer]);
+  }, [socket, peer, meId]);
 
-  // ✅ Auto Scroll
+  // ✅ Auto scroll to bottom
   useEffect(() => {
     if (msgBoxRef.current) {
       msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
@@ -107,29 +109,31 @@ export default function ChatPage({ closeModal }) {
       message: text,
     });
 
-    socket.emit("stopTyping", meId);
+    socket.emit("stopTyping", { senderId: meId, receiverId: peer._id });
+
     setText("");
   };
 
   // ✅ Typing handler
   const handleTyping = (e) => {
     setText(e.target.value);
-    socket.emit("typing", meId);
+
+    socket.emit("typing", { senderId: meId, receiverId: peer._id });
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
     typingTimeoutRef.current = setTimeout(() => {
-      socket.emit("stopTyping", meId);
-    }, 700);
+      socket.emit("stopTyping", { senderId: meId, receiverId: peer._id });
+    }, 800);
   };
-  // ✅ Date Helpers
+
+  // ✅ Helpers
   const getStamp = (m) => m?.createdAt || m?.timestamp || Date.now();
   const fmtDate = (ts) =>
     new Date(ts).toLocaleDateString("en-IN", {
       weekday: "short",
       day: "2-digit",
       month: "short",
-      year: "numeric",
     });
   const fmtTime = (ts) =>
     new Date(ts).toLocaleTimeString("en-IN", {
@@ -142,9 +146,11 @@ export default function ChatPage({ closeModal }) {
       <div className="modal-content">
         <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">
+
+            {/* Header */}
             <div className="card-header">
               <h3 className="card-title">
-                {peer ? `${peer.firstName} ${peer.lastName}` : "Select User"}
+                {peer ? `${peer.firstName} ${peer.lastName}` : "Messages"}
               </h3>
               <div className="card-tools">
                 <button className="btn btn-tool" onClick={closeModal}>
@@ -152,8 +158,10 @@ export default function ChatPage({ closeModal }) {
                 </button>
               </div>
             </div>
+
             <div className="d-flex">
-              {/* ✅ Users List */}
+              
+              {/* ✅ LEFT USER LIST */}
               <div style={{ width: "260px", borderRight: "1px solid #ddd" }}>
                 <h4 className="p-2 bg-light m-0">Users</h4>
 
@@ -164,7 +172,7 @@ export default function ChatPage({ closeModal }) {
                     className="p-2 d-flex align-items-center gap-2"
                     style={{
                       cursor: "pointer",
-                      background: peer?._id === u._id ? "#e6f7ff" : "white",
+                      background: peer?._id === u._id ? "#e7f5ff" : "white",
                       borderBottom: "1px solid #eee",
                     }}
                   >
@@ -172,55 +180,77 @@ export default function ChatPage({ closeModal }) {
                     <img
                       src={
                         u.profileImage ||
-                        "https://cdn-icons-png.freepik.com/512/3177/3177440.png?uid=R165505067&ga=GA1.1.701570569.1719990316"
+                        "https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
                       }
-                      width={35}
-                      height={35}
-                      alt="avatar"
-                      className="img-circle img-bordered-sm mr-2"
+                      width={38}
+                      height={38}
+                      className="img-circle img-bordered-sm"
+                      alt=""
                     />
 
-                    {/* ✅ User Name */}
-                    <span>
-                      {u.firstName} {u.lastName}
-                    </span>
+                    <div className="flex-grow-1">
+                      <div>
+                        {u.firstName} {u.lastName}
+                      </div>
+
+                      {/* ✅ Online / Offline */}
+                      <small>
+                        {u.online ? (
+                          <span style={{ color: "green" }}>● Online</span>
+                        ) : (
+                          <span style={{ color: "gray" }}>● Offline</span>
+                        )}
+                      </small>
+                    </div>
+
+                    {/* ✅ Unseen Badge */}
+                    {u.unseen > 0 && (
+                      <span
+                        style={{
+                          background: "#007bff",
+                          color: "white",
+                          borderRadius: "50%",
+                          padding: "4px 8px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {u.unseen}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
 
-              {/* ✅ Chat Window */}
+              {/* ✅ CHAT WINDOW */}
               <div style={{ flex: 1 }}>
                 <div
                   className="card direct-chat direct-chat-primary"
                   style={{ height: "100%" }}
                 >
-                  {/* ✅ Header */}
                   <div className="card-header">
                     <h3 className="card-title">
                       {peer ? `Chat with ${peer.firstName}` : "Select user"}
                     </h3>
                   </div>
 
-                  {/* ✅ Chat Messages */}
+                  {/* ✅ Messages */}
                   <div className="card-body">
                     <div className="direct-chat-messages" ref={msgBoxRef}>
                       {messages.map((m, i) => {
-                        const isMine = m.senderId === meId;
-                        const curTs = getStamp(m);
+                        const isMine = String(m.senderId) === String(meId);
+                        const ts = getStamp(m);
                         const prev = messages[i - 1];
 
                         const needDate =
                           i === 0 ||
                           new Date(getStamp(prev)).toDateString() !==
-                            new Date(curTs).toDateString();
+                            new Date(ts).toDateString();
 
                         return (
                           <React.Fragment key={i}>
                             {needDate && (
                               <div className="date-divider">
-                                <div className="line" />
-                                <span className="label">{fmtDate(curTs)}</span>
-                                <div className="line" />
+                                <span>{fmtDate(ts)}</span>
                               </div>
                             )}
 
@@ -231,9 +261,8 @@ export default function ChatPage({ closeModal }) {
                             >
                               <img
                                 src={
-                                  isMine
-                                    ? peer?.profileImage
-                                    : peer?.profileImage || "https://cdn-icons-png.freepik.com/512/3177/3177440.png?uid=R165505067&ga=GA1.1.701570569.1719990316"
+                                  peer?.profileImage ||
+                                  "https://cdn-icons-png.flaticon.com/512/3177/3177440.png"
                                 }
                                 className="direct-chat-img"
                                 alt=""
@@ -241,13 +270,12 @@ export default function ChatPage({ closeModal }) {
 
                               <div className="direct-chat-text msg-with-time">
                                 {m.message}
-
                                 <span
                                   className={`msg-time ${
                                     isMine ? "right-corner" : "left-corner"
                                   }`}
                                 >
-                                  {fmtTime(curTs)}
+                                  {fmtTime(ts)}
                                 </span>
                               </div>
                             </div>
@@ -255,7 +283,7 @@ export default function ChatPage({ closeModal }) {
                         );
                       })}
 
-                      {/* Typing */}
+                      {/* ✅ Typing indicator */}
                       {typing && (
                         <div className="typing-indicator">
                           {peer?.firstName} is typing…
@@ -270,17 +298,14 @@ export default function ChatPage({ closeModal }) {
                       <div className="input-group">
                         <input
                           type="text"
-                          placeholder="Type Message ..."
-                          className="form-control direct-chat-input"
+                          placeholder="Type Message..."
+                          className="form-control"
                           value={text}
                           onChange={handleTyping}
                           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                         />
                         <span className="input-group-append">
-                          <button
-                            className="btn btn-primary"
-                            onClick={sendMessage}
-                          >
+                          <button className="btn btn-primary" onClick={sendMessage}>
                             Send
                           </button>
                         </span>
@@ -289,6 +314,7 @@ export default function ChatPage({ closeModal }) {
                   )}
                 </div>
               </div>
+
             </div>
           </div>
         </div>
