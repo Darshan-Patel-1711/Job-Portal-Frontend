@@ -1,4 +1,4 @@
-// ✅ FINAL 100% WORKING VERSION
+// ✅ FINAL 100% WORKING VERSION (Null-safe Auto Scroll)
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -7,10 +7,12 @@ import { HiStatusOnline, HiStatusOffline } from "react-icons/hi";
 export default function MassageModal({ closeModal }) {
   const apiUrl = process.env.REACT_APP_API_URL;
   const socketUrl = process.env.REACT_APP_SOCKET_URL;
+
   const role = localStorage.getItem("role");
   const meId = localStorage.getItem("id");
   const token = localStorage.getItem("token");
   const myProfileImage = localStorage.getItem("profileImage");
+
   const [socket, setSocket] = useState(null);
   const [users, setUsers] = useState([]);
   const [peer, setPeer] = useState(null);
@@ -23,6 +25,7 @@ export default function MassageModal({ closeModal }) {
   const [typing, setTyping] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const msgBoxRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
@@ -43,8 +46,10 @@ export default function MassageModal({ closeModal }) {
   // USER MODE: Load Admin Details
   useEffect(() => {
     if (role !== "user") return;
+
     setLoading(true);
     setError(null);
+
     const endpoints = [
       `${apiUrl}admin/chatdetails`,
       `${apiUrl}admin/chatditails`,
@@ -52,12 +57,13 @@ export default function MassageModal({ closeModal }) {
       `${apiUrl}api/admin/chatditails`,
     ];
 
-    const tryLoad = async () => {
+    const loadAdmin = async () => {
       for (const url of endpoints) {
         try {
           const res = await axios.get(url, {
             headers: { authorization: token },
           });
+
           setAdmin(res.data.admin);
           setUser(res.data.User || res.data.user);
           setSuperAdminId(res.data.admin._id);
@@ -68,26 +74,32 @@ export default function MassageModal({ closeModal }) {
       setError("Unable to contact admin.");
       setLoading(false);
     };
-    tryLoad();
+
+    loadAdmin();
   }, [role, apiUrl, token]);
 
   // ADMIN MODE: Users List
   useEffect(() => {
     if (role !== "admin" || !socket) return;
+
     socket.on("usersList", (list) => {
       setUsers(list);
-      // ✅ IMPORTANT: Do NOT auto-select user
     });
+
     return () => socket.off("usersList");
   }, [socket, role]);
 
-  // LOAD CHAT HISTORY (WHEN ADMIN CLICKS A USER)
+  // LOAD CHAT HISTORY
   useEffect(() => {
     let withId = null;
+
     if (role === "admin" && peer) withId = peer._id;
     if (role === "user" && superAdminId) withId = superAdminId;
+
     if (!withId) return;
+
     setLoading(true);
+
     const endpoints = [
       `${apiUrl}chat/${meId}/${withId}`,
       `${apiUrl}api/chat/${meId}/${withId}`,
@@ -95,62 +107,69 @@ export default function MassageModal({ closeModal }) {
       `${apiUrl}api/messages/${meId}/${withId}`,
     ];
 
-    const tryLoad = async () => {
+    const loadHistory = async () => {
       for (const url of endpoints) {
         try {
           const res = await axios.get(url, {
             headers: { authorization: token },
           });
+
           setMessages(res.data);
           setLoading(false);
           return;
         } catch {}
       }
+
       setMessages([]);
       setLoading(false);
     };
-    tryLoad();
+
+    loadHistory();
   }, [peer, superAdminId, role, apiUrl, meId, token]);
 
-  // ✅ RECEIVE MESSAGE (THIS WAS THE BUG — NOW FIXED)
+  // RECEIVE MESSAGE
   useEffect(() => {
     if (!socket) return;
+
     socket.on("receiveMessage", (msg) => {
-      // ✅ ADMIN MODE: Show message ONLY IF SENDER === SELECTED PEER
       if (role === "admin") {
         if (peer && String(msg.senderId) === String(peer._id)) {
           setMessages((prev) => [...prev, msg]);
         }
-        return; // ❌ do not put messages from other users
+        return;
       }
-      // ✅ USER MODE ALWAYS CHATS WITH ADMIN
+
       if (role === "user") {
         if (String(msg.senderId) === String(superAdminId)) {
           setMessages((prev) => [...prev, msg]);
         }
       }
     });
+
     return () => socket.off("receiveMessage");
   }, [socket, role, peer, superAdminId]);
 
   // TYPING EVENTS
   useEffect(() => {
     if (!socket) return;
+
     socket.on("typing", (id) => {
       if (role === "admin" && peer && id === peer._id) setTyping(true);
       if (role === "user" && id === superAdminId) setTyping(true);
     });
+
     socket.on("stopTyping", (id) => {
       if (role === "admin" && peer && id === peer._id) setTyping(false);
       if (role === "user" && id === superAdminId) setTyping(false);
     });
+
     return () => {
       socket.off("typing");
       socket.off("stopTyping");
     };
   }, [socket, role, peer, superAdminId]);
 
-  // markSeen (ONLY when admin clicks user or user sees admin)
+  // markSeen
   useEffect(() => {
     if (role === "admin" && socket && peer) {
       socket.emit("markSeen", { userId: meId, fromId: peer._id });
@@ -165,22 +184,27 @@ export default function MassageModal({ closeModal }) {
 
   useEffect(() => {
     if (!socket) return;
+
     if (role === "admin" && peer) {
       socket.emit("markSeen", { userId: meId, fromId: peer._id });
     }
+
     if (role === "user" && superAdminId) {
       socket.emit("markSeen", { userId: meId, fromId: superAdminId });
     }
-    // eslint-disable-next-line
   }, [messages]);
 
-  // Text typing
+  // TYPING HANDLER
   const handleTyping = (e) => {
     setText(e.target.value);
+
     const receiverId = role === "admin" ? peer?._id : superAdminId;
     if (!receiverId) return;
+
     socket.emit("typing", { senderId: meId, receiverId });
+
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
     typingTimeoutRef.current = setTimeout(() => {
       socket.emit("stopTyping", { senderId: meId, receiverId });
     }, 650);
@@ -189,22 +213,36 @@ export default function MassageModal({ closeModal }) {
   // SEND MESSAGE
   const sendMessage = () => {
     if (!text.trim()) return;
+
     const receiverId = role === "admin" ? peer?._id : superAdminId;
+
     socket.emit("sendMessage", {
       senderId: meId,
       receiverId,
       message: text,
     });
+
     socket.emit("stopTyping", { senderId: meId, receiverId });
     setText("");
   };
 
-  // auto scroll
+  // ✅ AUTO SCROLL FIX 1 (Null-safe)
   useEffect(() => {
-    if (msgBoxRef.current) {
-      msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
-    }
+    setTimeout(() => {
+      if (msgBoxRef.current) {
+        msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
+      }
+    }, 50);
   }, [messages]);
+
+  // ✅ AUTO SCROLL FIX 2 (Null-safe)
+  useEffect(() => {
+    setTimeout(() => {
+      if (msgBoxRef.current) {
+        msgBoxRef.current.scrollTop = msgBoxRef.current.scrollHeight;
+      }
+    }, 100);
+  }, [peer, superAdminId, loading]);
 
   // helpers
   const getStamp = (m) => m?.createdAt || m?.timestamp || Date.now();
@@ -225,6 +263,7 @@ export default function MassageModal({ closeModal }) {
       <div className="modal-content">
         <div className="modal-body p-0">
           <div className="card direct-chat direct-chat-primary">
+
             {/* HEADER */}
             <div className="card-header">
               <h3 className="card-title">
@@ -241,29 +280,34 @@ export default function MassageModal({ closeModal }) {
                   <>{peer ? `Chat with ${peer.firstName}` : "Messages"}</>
                 )}
               </h3>
+
               <div className="card-tools">
                 <button className="btn btn-tool" onClick={closeModal}>
                   <i className="fas fa-times"></i>
                 </button>
               </div>
             </div>
-            {/* ERRORS */}
+
             {error && (
               <div className="alert alert-warning m-3">
                 <i className="fas fa-exclamation-triangle"></i> {error}
               </div>
             )}
+
             {/* BODY */}
             <div className="d-flex">
-              {/* LEFT SIDE - USERS LIST (ADMIN ONLY) */}
+
+              {/* LEFT SIDE (ADMIN USERS LIST) */}
               {role === "admin" && (
                 <div style={{ width: "260px", borderRight: "1px solid #ddd" }}>
                   <h4 className="p-2 bg-light m-0">Users</h4>
+
                   {users.length === 0 && (
                     <div className="p-3 text-center text-muted">
                       <small>No users</small>
                     </div>
                   )}
+
                   {users.map((u) => (
                     <div
                       key={u._id}
@@ -271,8 +315,7 @@ export default function MassageModal({ closeModal }) {
                       className="p-2 d-flex align-items-center gap-2"
                       style={{
                         cursor: "pointer",
-                        background:
-                          peer?._id === u._id ? "#e7f5ff" : "white",
+                        background: peer?._id === u._id ? "#e7f5ff" : "white",
                         borderBottom: "1px solid #eee",
                       }}
                     >
@@ -286,6 +329,7 @@ export default function MassageModal({ closeModal }) {
                         className="img-circle img-bordered-sm"
                         alt=""
                       />
+
                       <div className="flex-grow-1">
                         <div>{u.firstName} {u.lastName}</div>
                         <small>
@@ -296,6 +340,7 @@ export default function MassageModal({ closeModal }) {
                           )}
                         </small>
                       </div>
+
                       {u.unseen > 0 && (
                         <span
                           style={{
@@ -314,7 +359,7 @@ export default function MassageModal({ closeModal }) {
                 </div>
               )}
 
-              {/* RIGHT SIDE: CHAT WINDOW */}
+              {/* RIGHT SIDE CHAT WINDOW */}
               <div style={{ flex: 1 }}>
                 <div className="card-body">
                   {loading ? (
@@ -323,21 +368,23 @@ export default function MassageModal({ closeModal }) {
                     </div>
                   ) : (
                     <div className="direct-chat-messages" ref={msgBoxRef}>
+
                       {messages.length === 0 && !typing && (
                         <div className="text-center text-muted p-5">
                           <i className="far fa-comments fa-3x mb-3"></i>
                           <p>No messages</p>
                         </div>
                       )}
+
                       {messages.map((m, i) => {
-                        const isMine =
-                          String(m.senderId) === String(meId);
+                        const isMine = String(m.senderId) === String(meId);
                         const ts = getStamp(m);
                         const prev = messages[i - 1];
                         const needDate =
                           i === 0 ||
                           new Date(getStamp(prev)).toDateString() !==
                             new Date(ts).toDateString();
+
                         return (
                           <React.Fragment key={i}>
                             {needDate && (
@@ -345,6 +392,7 @@ export default function MassageModal({ closeModal }) {
                                 <span>{fmtDate(ts)}</span>
                               </div>
                             )}
+
                             <div
                               className={`direct-chat-msg ${
                                 isMine ? "right" : ""
@@ -364,13 +412,13 @@ export default function MassageModal({ closeModal }) {
                                 className="direct-chat-img"
                                 alt=""
                               />
+
                               <div className="direct-chat-text msg-with-time">
                                 {m.message}
+
                                 <span
                                   className={`msg-time ${
-                                    isMine
-                                      ? "right-corner"
-                                      : "left-corner"
+                                    isMine ? "right-corner" : "left-corner"
                                   }`}
                                 >
                                   {fmtTime(ts)}
@@ -380,17 +428,17 @@ export default function MassageModal({ closeModal }) {
                           </React.Fragment>
                         );
                       })}
+
                       {typing && (
                         <div className="typing-indicator">
-                          {role === "admin"
-                            ? peer?.firstName
-                            : admin?.firstName}{" "}
+                          {role === "admin" ? peer?.firstName : admin?.firstName}{" "}
                           is typing…
                         </div>
                       )}
                     </div>
                   )}
                 </div>
+
                 {(role === "user" || peer) && (
                   <div className="card-footer">
                     <div className="input-group">
@@ -400,11 +448,10 @@ export default function MassageModal({ closeModal }) {
                         className="form-control"
                         value={text}
                         onChange={handleTyping}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && sendMessage()
-                        }
+                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                         disabled={loading}
                       />
+
                       <span className="input-group-append">
                         <button
                           className="btn btn-primary"
@@ -417,8 +464,10 @@ export default function MassageModal({ closeModal }) {
                     </div>
                   </div>
                 )}
+
               </div>
             </div>
+
           </div>
         </div>
       </div>
